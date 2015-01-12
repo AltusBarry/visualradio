@@ -16,6 +16,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <!--INFLATE THE TEXT AREA ACTIVITY-->
+        <activity
+           android:name=".InflatedViewActivity"
+           android:label=".InflatedViewActivity" ></activity>
     </application>
 
 </manifest>
