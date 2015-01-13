@@ -26,21 +26,21 @@ import altus.visualradio.models.ListDetailSetter;
 
 
 public class MainListingActivity extends ListActivity {
-    private static      String index_filename = "VS_index_feed.json";
-    private             ArrayList<ListDetailSetter> index_detail_setter;
-    private             JSONObject json_object;
+    private static      String indexFilename = "VS_index_feed.json";
+    private             ArrayList<ListDetailSetter> indexDetailSetter;
+    private             JSONObject jsonObject;
 
     private static      String JSON_INDEX_KEY = "com.index_feed";
-    public static        String TITLE_KEY(){return "com.visual.header";}
+    public static       String TITLE_KEY() {return "com.visual.header";}
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //**writeToIndexFile();**\\
+        // **writeToIndexFile();** \\
         setContentView(R.layout.activity_main_listing);
-        //Read Index Feed into JSON Array
+        // Read Index Feed into JSON Array and then displays it in the list view
         try {
-            readMsgFeedFile(index_filename);
+            readMessageFeedFile(indexFilename);
             writeToIndexList();
         } catch (IOException e) {
             e.printStackTrace();
@@ -48,12 +48,15 @@ public class MainListingActivity extends ListActivity {
             e.printStackTrace();
         }
 
-        CustomListViewAdapter customAdapter = new CustomListViewAdapter(this, index_detail_setter);
+        CustomListViewAdapter customAdapter = new CustomListViewAdapter(this, indexDetailSetter);
         // Assign adapter to ListView
+        // Needs to extend the ListActivity
         setListAdapter(customAdapter);
     }
-    //ONCE OFF CREATION OF EMPTY FILE COMMENTED OUT AFTER USE
-   /* public void writeToIndexFile(){
+   /* public void writeToIndexFile() {
+        // Creates an empty JSON file in the applications private external folder
+        // Which was then manually populated and later used
+
         File msg_feed_file = new File(getExternalFilesDir(null), index_filename);
         try {
             FileOutputStream fileOutputStream = new FileOutputStream(msg_feed_file);
@@ -65,45 +68,47 @@ public class MainListingActivity extends ListActivity {
         }
     }*/
 
-    //Read file into JSON array
-    public void readMsgFeedFile(String index_filename) throws IOException, JSONException {
-        //Assign file with name and directory of the VS_index_feed.json, which was created manually earlier
-        File msg_feed_file = new File(getExternalFilesDir(null), index_filename);
-        json_object = new JSONObject();
-        JSONArray temp_array = new JSONArray();
-        String temp_string = "";
 
-        if (msg_feed_file != null) {
-            //Create new file input stream
-            FileInputStream file_input_stream = new FileInputStream(msg_feed_file);
+    public void readMessageFeedFile(String index_filename) throws IOException, JSONException {
+        // Read file into JSON array
+        // Assign file with name and directory of the VS_index_feed.json, which was created manually earlier
+        File msgFeedFile = new File(getExternalFilesDir(null), index_filename);
+        jsonObject = new JSONObject();
+        JSONArray tempArray = new JSONArray();
+        String tempString = "";
+
+        if (msgFeedFile != null) {
+            // Create new file input stream
+            FileInputStream file_input_stream = new FileInputStream(msgFeedFile);
             BufferedReader reader = new BufferedReader(new InputStreamReader(file_input_stream));
-            StringBuilder string_builder = new StringBuilder();
-            String current_line = null;
-            //Read every line till end of file
-            while ((current_line = reader.readLine()) != null) {
-                string_builder.append(current_line);
+            StringBuilder stringBuilder = new StringBuilder();
+            String currentLine = null;
+            // Read every line till end of file
+            while ((currentLine = reader.readLine()) != null) {
+                stringBuilder.append(currentLine);
             }
             reader.close();
             file_input_stream.close();
-            temp_string = string_builder.toString();
-            //Parse string from file through JSON tokener to extract characters and tokens properly
-            JSONTokener jsonTokener = new JSONTokener(temp_string);
-            //feed the parsed string into JSONArray
-            temp_array = new JSONArray(jsonTokener);
+            tempString = stringBuilder.toString();
+            // Parse string from file through JSON tokener to extract characters and tokens properly
+            JSONTokener jsonTokener = new JSONTokener(tempString);
+            // Feed the parsed string into JSONArray
+            tempArray = new JSONArray(jsonTokener);
         }
-        json_object.put(JSON_INDEX_KEY, temp_array);
+        jsonObject.put(JSON_INDEX_KEY, tempArray);
     }
 
-    //TODO
     public void writeToIndexList() throws JSONException {
-        index_detail_setter = new ArrayList<>();
-        JSONArray temp_assignList_array = json_object.getJSONArray(JSON_INDEX_KEY);
+        // Creates a new ArrayList that will populate the list view with custom list object layouts
+        // using the information stored in the JSONObject's, jsonArray
+        indexDetailSetter = new ArrayList<>();
+        JSONArray tempAssignListArray = jsonObject.getJSONArray(JSON_INDEX_KEY);
 
-        for(int i = 0; i<temp_assignList_array.length(); i++){
+        for(int i = 0; i<tempAssignListArray.length(); i++) {
             ListDetailSetter listDetailSetter = new ListDetailSetter();
-            listDetailSetter.setTitle(temp_assignList_array.getJSONObject(i).getString("title"));
+            listDetailSetter.setTitle(tempAssignListArray.getJSONObject(i).getString("title"));
 
-            index_detail_setter.add(listDetailSetter);
+            indexDetailSetter.add(listDetailSetter);
         }
     }
 
@@ -129,14 +134,17 @@ public class MainListingActivity extends ListActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    protected void onListItemClick(ListView index_list, View v, int list_position, long id){
-        //Start intent that will make use of the InflatedViewActivity class
-        Intent inflate_view = new Intent(this, InflatedViewActivity.class);
+    protected void onListItemClick(ListView indexList, View v, int listPosition, long id){
+        // Start intent that will make use of the InflatedViewActivity class
+        // Gets the position number in the listView of tapped item, feeds it into the indexDetailSetter array
+        // which returns the values for that position in the array
+        // Then it sends the data to the InflatedViewActivity to be displayed in the new view
+        Intent inflateView = new Intent(this, InflatedViewActivity.class);
 
-        String inflated_title = index_detail_setter.get(list_position).getTitle();
+        String inflatedTitle = indexDetailSetter.get(listPosition).getTitle();
 
-        inflate_view.putExtra(TITLE_KEY(), inflated_title);
+        inflateView.putExtra(TITLE_KEY(), inflatedTitle);
 
-        startActivity(inflate_view);
+        startActivity(inflateView);
     }
 }

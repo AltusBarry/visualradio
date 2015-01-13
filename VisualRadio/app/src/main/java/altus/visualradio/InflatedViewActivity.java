@@ -15,7 +15,7 @@ public class InflatedViewActivity extends Activity {
         expandedTextFill();
     }
 
-    public void expandedTextFill(){
+    public void expandedTextFill() {
         Bundle bundle = getIntent().getExtras();
         String title = bundle.getString(MainListingActivity.TITLE_KEY());
         TextView headerText = (TextView) findViewById(R.id.text_title);

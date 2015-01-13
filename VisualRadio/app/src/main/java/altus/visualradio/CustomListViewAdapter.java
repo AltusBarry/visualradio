@@ -14,24 +14,24 @@ import altus.visualradio.models.ListDetailSetter;
 /**
  * Created by altus on 2015/01/12.
  */
-public class CustomListViewAdapter extends ArrayAdapter<ListDetailSetter>{
+public class CustomListViewAdapter extends ArrayAdapter<ListDetailSetter> {
     private LayoutInflater inflater;
 
-    public CustomListViewAdapter(Activity activity, ArrayList index_list){
-        super(activity, R.layout.main_index_list_layout, index_list);
+    public CustomListViewAdapter(Activity activity, ArrayList indexList) {
+        super(activity, R.layout.main_index_list_layout, indexList);
         inflater = activity.getWindow().getLayoutInflater();
     }
 
-    public View getView(int position, View convertView, ViewGroup parent){
-        ListDetailSetter index_list = getItem(position);
+    public View getView(int position, View convertView, ViewGroup parent) {
+        ListDetailSetter indexList = getItem(position);
 
-        if(convertView == null){
+        if (convertView == null) {
             convertView = inflater.inflate(R.layout.main_index_list_layout, parent, false);
         }
 
-        TextView title_text = (TextView) convertView.findViewById(R.id.text_title);
+        TextView titleText = (TextView) convertView.findViewById(R.id.text_title);
 
-        title_text.setText(index_list.getTitle());
+        titleText.setText(indexList.getTitle());
 
         return convertView;
     }
