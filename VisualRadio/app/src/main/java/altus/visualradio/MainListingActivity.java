@@ -2,7 +2,10 @@ package altus.visualradio;
 
 import android.app.Activity;
 import android.app.ListActivity;
+import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -22,10 +25,12 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 
+import altus.visualradio.AsyncTasks.IndexFileDownloadAsync;
 import altus.visualradio.models.ListDetailSetter;
 
 
 public class MainListingActivity extends ListActivity {
+    private static      String serverIP = "http://192.168.0.246:8000/list.json";
     private static      String indexFilename = "VS_index_feed.json";
     private             ArrayList<ListDetailSetter> indexDetailSetter;
     private             JSONObject jsonObject;
@@ -33,13 +38,18 @@ public class MainListingActivity extends ListActivity {
     private static      String JSON_INDEX_KEY = "com.index_feed";
     public static       String TITLE_KEY() {return "com.visual.header";}
 
+    private             IndexFileDownloadAsync indexFileDownloadAsync;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        indexFileDownloadAsync = new IndexFileDownloadAsync();
         // **writeToIndexFile();** \\
         setContentView(R.layout.activity_main_listing);
         // Read Index Feed into JSON Array and then displays it in the list view
         try {
+            indexFileDownloadAsync.setFilePath(getExternalFilesDir(null).toString());
+            indexFileDownloadAsync.execute(serverIP);
             readMessageFeedFile(indexFilename);
             writeToIndexList();
         } catch (IOException e) {
@@ -68,19 +78,21 @@ public class MainListingActivity extends ListActivity {
         }
     }*/
 
+    public void downloadFile(String url){
 
-    public void readMessageFeedFile(String index_filename) throws IOException, JSONException {
+    }
+    public void readMessageFeedFile(String indexFilename) throws IOException, JSONException {
         // Read file into JSON array
         // Assign file with name and directory of the VS_index_feed.json, which was created manually earlier
-        File msgFeedFile = new File(getExternalFilesDir(null), index_filename);
+        File msgFeedFile = new File(getExternalFilesDir(null), indexFilename);
         jsonObject = new JSONObject();
         JSONArray tempArray = new JSONArray();
         String tempString = "";
 
         if (msgFeedFile != null) {
             // Create new file input stream
-            FileInputStream file_input_stream = new FileInputStream(msgFeedFile);
-            BufferedReader reader = new BufferedReader(new InputStreamReader(file_input_stream));
+            FileInputStream fileInputStream = new FileInputStream(msgFeedFile);
+            BufferedReader reader = new BufferedReader(new InputStreamReader(fileInputStream));
             StringBuilder stringBuilder = new StringBuilder();
             String currentLine = null;
             // Read every line till end of file
@@ -88,7 +100,7 @@ public class MainListingActivity extends ListActivity {
                 stringBuilder.append(currentLine);
             }
             reader.close();
-            file_input_stream.close();
+            fileInputStream.close();
             tempString = stringBuilder.toString();
             // Parse string from file through JSON tokener to extract characters and tokens properly
             JSONTokener jsonTokener = new JSONTokener(tempString);
