@@ -183,8 +183,11 @@ public class MainListingActivity extends ListActivity {
         fm.beginTransaction().remove(this.threadExample).commit();
     }
 
-    // Async task that is capable of manipulating UI
-    class UIAsyncTask extends AsyncTask<String, String, String> {
+      class UIAsyncTask extends AsyncTask<String, String, String> {
+          // Async task that is capable of manipulating UI
+          // It needs to be inside the main Activity class
+          // At this moment in time i am uncertain of how to change the UI in any other threads or
+          // Async calls, without them being inside the main activity
         String string;
         protected String doInBackground(String... params) {
             string = params[0];
@@ -203,8 +206,6 @@ public class MainListingActivity extends ListActivity {
         protected void onPostExecute(String results) {
             textView.setText(results);
         }
-
     }
-
 }
 
