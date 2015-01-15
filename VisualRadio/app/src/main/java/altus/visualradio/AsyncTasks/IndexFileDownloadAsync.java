@@ -12,6 +12,8 @@ import java.io.IOException;
 import java.net.URL;
 import java.net.URLConnection;
 
+import altus.visualradio.R;
+
 
 /**
  * Created by altus on 2015/01/13.
@@ -49,5 +51,13 @@ public class IndexFileDownloadAsync extends AsyncTask<String, String, String> {
             Log.e("URL not found", "URL path incorrect");
         }
         return null;
+    }
+
+    protected void onPostExecute(String string) {
+        // doInBackground result returned to the onPostExecute method
+        // Async is the only safe way to update UI outside of MAIN activity
+
+        // Update UI here cannot be done in new class file it seems, class must be in main activity
+        // Assuming that main Activity will need setter methods to handle UI changes from other class files
     }
 }
