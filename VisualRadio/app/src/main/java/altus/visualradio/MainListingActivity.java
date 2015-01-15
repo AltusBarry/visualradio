@@ -1,13 +1,8 @@
 package altus.visualradio;
 
-import android.app.Activity;
 import android.app.ListActivity;
-import android.content.Context;
 import android.content.Intent;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
