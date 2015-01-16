@@ -5,13 +5,12 @@ import android.app.ListActivity;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Message;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -24,39 +23,49 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.logging.Handler;
 
 import altus.visualradio.AsyncTasks.IndexFileDownloadAsync;
+import altus.visualradio.AsyncTasks.UpdateViewAsync;
 import altus.visualradio.Threads.ThreadExample;
 import altus.visualradio.models.ListDetailSetter;
 
+// After Handlers, Large parts should be shifted to Fragments.
+// ListView creation and population should be a Fragment.
+// Reading File should be a Fragment
 
-public class MainListingActivity extends ListActivity {
+// Only one Async can be run at a time
+public class MainListingActivity extends ListActivity implements ThreadExample.CallBacks, UpdateViewAsync.AsyncCallBacks {
+    // Private in class variables
     private static      String serverIP = "http://192.168.0.246:8000/list.json";
     private static      String indexFilename = "VS_index_feed.json";
     private             ArrayList<ListDetailSetter> indexDetailSetter;
     private             JSONObject jsonObject;
     private             TextView textView;
 
+    // KEY variables
     private static      String JSON_INDEX_KEY = "com.index_feed";
     public static       String TITLE_KEY() {return "com.visual.header";}
 
+    // Non default variables
     private             IndexFileDownloadAsync indexFileDownloadAsync;
-    private             ThreadExample threadExample;
     private             UIAsyncTask uiAsyncTask;
+
+    // Fragments
+    private             ThreadExample threadExample;
+    private             UpdateViewAsync upDateViewAsync;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_listing);
+        // Variables given values for use later;
         indexFileDownloadAsync = new IndexFileDownloadAsync();
         uiAsyncTask = new UIAsyncTask();
-        textView = (TextView) findViewById(R.id.pageHeader);
+
         // **writeToIndexFile();** \\
 
         // waste 20 seconds while rest of activity continues
-        nonUIFragment();
-
+        createThreadExample();
         // Read Index Feed into JSON Array and then displays it in the list view
         try {
             indexFileDownloadAsync.setFilePath(getExternalFilesDir(null).toString());
@@ -75,6 +84,7 @@ public class MainListingActivity extends ListActivity {
         // Needs to extend the ListActivity
         setListAdapter(customAdapter);
     }
+
    /* public void writeToIndexFile() {
         // Creates an empty JSON file in the applications private external folder
         // Which was then manually populated and later used
@@ -164,10 +174,11 @@ public class MainListingActivity extends ListActivity {
         startActivity(inflateView);
     }
 
-    public void nonUIFragment() {
+    public void createThreadExample() {
         FragmentManager fm = getFragmentManager();
         // Check to see if we have retained the worker fragment.
         threadExample = (ThreadExample)fm.findFragmentByTag("retainedFragment");
+        upDateViewAsync = (UpdateViewAsync)fm.findFragmentByTag("retainedAsyncFragment");
         // If not retained (or first time running), we need to create it.
         if (threadExample == null) {
             // create instance of NON UI Fragment
@@ -175,27 +186,40 @@ public class MainListingActivity extends ListActivity {
             // NON UI Fragment added
             fm.beginTransaction().add(threadExample, "retainedFragment").commit();
         }
+        if (upDateViewAsync == null) {
+            // create instance of NON UI Fragment
+            upDateViewAsync = new UpdateViewAsync();
+            // NON UI Fragment added
+            fm.beginTransaction().add(upDateViewAsync, "retainedAsyncFragment").commit();
+        }
     }
 
-    public void cleanupNonUIFragment() {
-        // Fragments that are set to retain their instance should be removed when they are no longer needed
+    public void cleanupFragments(String fragmentID) {
+        //  Can be called at any time to remove fragment with specific tag
         FragmentManager fm = getFragmentManager();
-        fm.beginTransaction().remove(this.threadExample).commit();
+        fm.beginTransaction().remove(fm.findFragmentByTag((fragmentID))).commit();
     }
 
-      class UIAsyncTask extends AsyncTask<String, String, String> {
-          // Async task that is capable of manipulating UI
-          // It needs to be inside the main Activity class
-          // At this moment in time i am uncertain of how to change the UI in any other threads or
-          // Async calls, without them being inside the main activity
+    public void modifyUI(String string) {
+        textView = (TextView) findViewById(R.id.pageHeader);
+        textView.setText(string);
+    }
+
+    // Nestled class for Async Operation
+    class UIAsyncTask extends AsyncTask<String, String, String> {
+        // Async task that is capable of manipulating UI
+        // It needs to be inside the main Activity class
+        // At this moment in time i am uncertain of how to change the UI in any other threads or
+        // Async calls, without them being inside the main activity
         String string;
         protected String doInBackground(String... params) {
+            Log.d("Fragment", "thread = " + Thread.currentThread().getName());
             string = params[0];
             long endTime = System.currentTimeMillis() + 20 * 1000;
             while (System.currentTimeMillis() < endTime) {
                 synchronized (this) {
                     try {
-                        wait(endTime - System.currentTimeMillis());
+                       wait(endTime - System.currentTimeMillis());
                     } catch (Exception e) {
                     }
                 }

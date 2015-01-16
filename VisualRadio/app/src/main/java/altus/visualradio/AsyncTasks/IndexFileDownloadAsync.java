@@ -28,6 +28,7 @@ public class IndexFileDownloadAsync extends AsyncTask<String, String, String> {
 
     @Override
     protected String doInBackground(String... fileUrl) {
+        Log.d("Fragment", "thread = " + Thread.currentThread().getName());
         try {
             File downloadedFile = new File(filePath, "FILE");
             URL url = new URL(fileUrl[0]);
