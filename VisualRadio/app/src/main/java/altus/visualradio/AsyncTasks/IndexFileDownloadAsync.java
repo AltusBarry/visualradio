@@ -12,15 +12,11 @@ import java.io.IOException;
 import java.net.URL;
 import java.net.URLConnection;
 
-import altus.visualradio.R;
-
-
 /**
  * Created by altus on 2015/01/13.
  */
 public class IndexFileDownloadAsync extends AsyncTask<String, String, String> {
     private String filePath;
-
 
     public void setFilePath(String filePath) {
         this.filePath = filePath;

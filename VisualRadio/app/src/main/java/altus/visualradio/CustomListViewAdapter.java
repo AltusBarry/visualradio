@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -28,10 +29,15 @@ public class CustomListViewAdapter extends ArrayAdapter<ListDetailSetter> {
         if (convertView == null) {
             convertView = inflater.inflate(R.layout.main_index_list_layout, parent, false);
         }
+        //ImageView albumArt = (ImageView) convertView.findViewById(R.id.index_profile_images);
 
         TextView titleText = (TextView) convertView.findViewById(R.id.text_title);
+        TextView timeStamp = (TextView) convertView.findViewById(R.id.text_time_stamp);
 
         titleText.setText(indexList.getTitle());
+        timeStamp.setText(indexList.getPublishOn());
+
+        //albumArt.setImageBitmap(indexList.getAlbumArtwork());
 
         return convertView;
     }

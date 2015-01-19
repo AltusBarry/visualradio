@@ -34,7 +34,7 @@
             android:textColor="#ff000000"
             android:textStyle="bold"
             android:id="@+id/text_title" />
-<!--
+
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -55,7 +55,7 @@
             android:textSize="12sp"
             android:textStyle="italic"
             android:id="@+id/text_time_stamp" />
-            -->
+
     </LinearLayout>
 
 </LinearLayout>

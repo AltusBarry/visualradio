@@ -32,8 +32,8 @@ import altus.visualradio.models.ListDetailSetter;
 // After Handlers, Large parts should be shifted to Fragments.
 // ListView creation and population should be a Fragment.
 // Reading File should be a Fragment
-
 // Only one Async can be run at a time
+
 public class MainListingActivity extends ListActivity implements ThreadExample.CallBacks, UpdateViewAsync.AsyncCallBacks {
     // Private in class variables
     private static      String serverIP = "http://192.168.0.246:8000/list.json";
@@ -60,16 +60,11 @@ public class MainListingActivity extends ListActivity implements ThreadExample.C
         setContentView(R.layout.activity_main_listing);
         // Variables given values for use later;
         indexFileDownloadAsync = new IndexFileDownloadAsync();
-        uiAsyncTask = new UIAsyncTask();
 
         // **writeToIndexFile();** \\
-
-        // waste 20 seconds while rest of activity continues
-        createThreadExample();
         // Read Index Feed into JSON Array and then displays it in the list view
         try {
             indexFileDownloadAsync.setFilePath(getExternalFilesDir(null).toString());
-            uiAsyncTask.execute("Stuff");
             //indexFileDownloadAsync.execute(serverIP);
             readMessageFeedFile(indexFilename);
             writeToIndexList();
@@ -134,10 +129,16 @@ public class MainListingActivity extends ListActivity implements ThreadExample.C
         // using the information stored in the JSONObject's, jsonArray
         indexDetailSetter = new ArrayList<>();
         JSONArray tempAssignListArray = jsonObject.getJSONArray(JSON_INDEX_KEY);
+        JSONObject tempArrayObject = new JSONObject();
 
         for(int i = 0; i<tempAssignListArray.length(); i++) {
             ListDetailSetter listDetailSetter = new ListDetailSetter();
-            listDetailSetter.setTitle(tempAssignListArray.getJSONObject(i).getString("title"));
+            //get the JSON Object from Array at index point i with the KEY "card"
+            tempArrayObject = tempAssignListArray.getJSONObject(i).getJSONObject("card");
+            // Individually assign the String values to the list setter to be added to the List array object
+            listDetailSetter.setTitle(tempArrayObject.getString("title"));
+            listDetailSetter.setImageURL(tempArrayObject.getString("image_url"));
+            listDetailSetter.setPublishOn(tempArrayObject.getLong("publish_on"));
 
             indexDetailSetter.add(listDetailSetter);
         }

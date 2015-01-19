@@ -16,7 +16,6 @@ import java.io.IOException;
 import java.net.URL;
 import java.net.URLConnection;
 
-
 /**
  * Created by altus on 2015/01/13.
  */

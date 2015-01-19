@@ -4,14 +4,9 @@ import android.app.Activity;
 import android.app.Fragment;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
 import android.view.View;
-
-import altus.visualradio.MainListingActivity;
-
-import static altus.visualradio.MainListingActivity.*;
 
 /**
  * Created by altus on 2015/01/15.
@@ -48,13 +43,6 @@ public class ThreadExample extends Fragment {
         return null;
     }
 
-    Handler handler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            textCallBack.modifyUI("Updated From Thread Callback Ya'll");
-        }
-    };
-
     public void wasteSomeTime(){
         Runnable runnable = new Runnable() {
             public void run() {
@@ -69,12 +57,24 @@ public class ThreadExample extends Fragment {
                 }
                 Log.d("Time wasted: ", Long.toString(System.currentTimeMillis()));
                 Log.d("Fragment", "thread = " + Thread.currentThread().getName());
-                handler.sendEmptyMessage(0);
+                Message msg = Message.obtain(); // Creates an new Message instance
+                msg.obj = "A HANDLED ISH PIECE OF TEXT"; // Put the string into Message, into "obj" field.
+                msg.setTarget(handler);
+                msg.sendToTarget();
             }
         };
         Thread myThread = new Thread(runnable);
         myThread.start();
     }
+
+    Handler handler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            String message = (String) msg.obj;
+            textCallBack.modifyUI(message);
+        }
+    };
+
 }
 
 
