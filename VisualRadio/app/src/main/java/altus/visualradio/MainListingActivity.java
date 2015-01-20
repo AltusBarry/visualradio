@@ -26,6 +26,7 @@ import java.util.ArrayList;
 
 import altus.visualradio.AsyncTasks.IndexFileDownloadAsync;
 import altus.visualradio.AsyncTasks.UpdateViewAsync;
+import altus.visualradio.Threads.Feed;
 import altus.visualradio.Threads.ThreadExample;
 import altus.visualradio.models.ListDetailSetter;
 
@@ -60,6 +61,7 @@ public class MainListingActivity extends ListActivity implements ThreadExample.C
         setContentView(R.layout.activity_main_listing);
         // Variables given values for use later;
         indexFileDownloadAsync = new IndexFileDownloadAsync();
+        Feed feed = new Feed();
 
         // **writeToIndexFile();** \\
         // Read Index Feed into JSON Array and then displays it in the list view
@@ -68,11 +70,12 @@ public class MainListingActivity extends ListActivity implements ThreadExample.C
             //indexFileDownloadAsync.execute(serverIP);
             readMessageFeedFile(indexFilename);
             writeToIndexList();
-        } catch (IOException e) {
-            e.printStackTrace();
         } catch (JSONException e) {
             e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
+        feed.loadItems(getExternalFilesDir(null).toString(), indexFilename);
 
         CustomListViewAdapter customAdapter = new CustomListViewAdapter(this, indexDetailSetter);
         // Assign adapter to ListView

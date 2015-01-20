@@ -5,11 +5,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
 
+import altus.visualradio.Threads.Feed;
 import altus.visualradio.models.ListDetailSetter;
 
 /**
@@ -38,7 +38,6 @@ public class CustomListViewAdapter extends ArrayAdapter<ListDetailSetter> {
         timeStamp.setText(indexList.getPublishOn());
 
         //albumArt.setImageBitmap(indexList.getAlbumArtwork());
-
         return convertView;
     }
 }
