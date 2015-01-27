@@ -18,6 +18,7 @@ import java.net.URLConnection;
 public class IndexFileDownloadAsync extends AsyncTask<String, String, String> {
     private String filePath;
 
+
     public void setFilePath(String filePath) {
         this.filePath = filePath;
     }

@@ -3,8 +3,11 @@ package altus.visualradio;
 import android.app.FragmentManager;
 import android.app.ListActivity;
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
+import android.os.SystemClock;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -15,33 +18,26 @@ import android.widget.TextView;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.json.JSONTokener;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 
 import altus.visualradio.AsyncTasks.IndexFileDownloadAsync;
-import altus.visualradio.AsyncTasks.UpdateViewAsync;
-import altus.visualradio.Threads.Feed;
-import altus.visualradio.Threads.ThreadExample;
-import altus.visualradio.models.ListDetailSetter;
+import altus.visualradio.ListView.CustomListViewAdapter;
+import altus.visualradio.ListView.DataStore;
+import altus.visualradio.ListView.ModelBase;
 
 // After Handlers, Large parts should be shifted to Fragments.
 // ListView creation and population should be a Fragment.
 // Reading File should be a Fragment
 // Only one Async can be run at a time
 
-public class MainListingActivity extends ListActivity implements ThreadExample.CallBacks, UpdateViewAsync.AsyncCallBacks {
+public class MainListingActivity extends ListActivity {
     // Private in class variables
     private static      String serverIP = "http://192.168.0.246:8000/list.json";
     private static      String indexFilename = "VS_index_feed.json";
-    private             ArrayList<ListDetailSetter> indexDetailSetter;
-    private             JSONObject jsonObject;
-    private             TextView textView;
+    private             ArrayList<ModelBase> listContents;
+    private             int lastPublishOn = 0;
+    private             PollingThread pollThread;
 
     // KEY variables
     private static      String JSON_INDEX_KEY = "com.index_feed";
@@ -49,11 +45,9 @@ public class MainListingActivity extends ListActivity implements ThreadExample.C
 
     // Non default variables
     private             IndexFileDownloadAsync indexFileDownloadAsync;
-    private             UIAsyncTask uiAsyncTask;
 
     // Fragments
-    private             ThreadExample threadExample;
-    private             UpdateViewAsync upDateViewAsync;
+    private DataStore dataStoreThread;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,26 +55,38 @@ public class MainListingActivity extends ListActivity implements ThreadExample.C
         setContentView(R.layout.activity_main_listing);
         // Variables given values for use later;
         indexFileDownloadAsync = new IndexFileDownloadAsync();
-        Feed feed = new Feed();
-
-        // **writeToIndexFile();** \\
-        // Read Index Feed into JSON Array and then displays it in the list view
-        try {
-            indexFileDownloadAsync.setFilePath(getExternalFilesDir(null).toString());
-            //indexFileDownloadAsync.execute(serverIP);
-            readMessageFeedFile(indexFilename);
-            writeToIndexList();
-        } catch (JSONException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
+        if(savedInstanceState == null) {
+            createFeedThread();
         }
-        feed.loadItems(getExternalFilesDir(null).toString(), indexFilename);
+        // **writeToIndexFile();** \\
+        // Read Index DataStore into JSON Array and then displays it in the list view
 
-        CustomListViewAdapter customAdapter = new CustomListViewAdapter(this, indexDetailSetter);
-        // Assign adapter to ListView
-        // Needs to extend the ListActivity
-        setListAdapter(customAdapter);
+        indexFileDownloadAsync.setFilePath(getExternalFilesDir(null).toString());
+
+        pollThread = new PollingThread();
+        pollThread.start();
+         //indexFileDownloadAsync.execute(serverIP);
+    }
+
+    protected void onStart() {
+        super.onStart();
+        pollThread.unpause();
+    }
+
+    protected void onStop() {
+        pollThread.pause();
+        super.onStop();
+    }
+
+    @Override
+    protected void onDestroy() {
+        pollThread.terminate();
+        try {
+            pollThread.join();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        super.onDestroy();
     }
 
    /* public void writeToIndexFile() {
@@ -97,55 +103,6 @@ public class MainListingActivity extends ListActivity implements ThreadExample.C
             Log.e("Exception", "File write failed: "+e.toString());
         }
     }*/
-
-    public void readMessageFeedFile(String indexFilename) throws IOException, JSONException {
-        // Read file into JSON array
-        // Assign file with name and directory of the VS_index_feed.json, which was created manually earlier
-        File msgFeedFile = new File(getExternalFilesDir(null), indexFilename);
-        jsonObject = new JSONObject();
-        JSONArray tempArray = new JSONArray();
-        String tempString = "";
-
-        if (msgFeedFile != null) {
-            // Create new file input stream
-            FileInputStream fileInputStream = new FileInputStream(msgFeedFile);
-            BufferedReader reader = new BufferedReader(new InputStreamReader(fileInputStream));
-            StringBuilder stringBuilder = new StringBuilder();
-            String currentLine = null;
-            // Read every line till end of file
-            while ((currentLine = reader.readLine()) != null) {
-                stringBuilder.append(currentLine);
-            }
-            reader.close();
-            fileInputStream.close();
-            tempString = stringBuilder.toString();
-            // Parse string from file through JSON tokener to extract characters and tokens properly
-            JSONTokener jsonTokener = new JSONTokener(tempString);
-            // Feed the parsed string into JSONArray
-            tempArray = new JSONArray(jsonTokener);
-        }
-        jsonObject.put(JSON_INDEX_KEY, tempArray);
-    }
-
-    public void writeToIndexList() throws JSONException {
-        // Creates a new ArrayList that will populate the list view with custom list object layouts
-        // using the information stored in the JSONObject's, jsonArray
-        indexDetailSetter = new ArrayList<>();
-        JSONArray tempAssignListArray = jsonObject.getJSONArray(JSON_INDEX_KEY);
-        JSONObject tempArrayObject = new JSONObject();
-
-        for(int i = 0; i<tempAssignListArray.length(); i++) {
-            ListDetailSetter listDetailSetter = new ListDetailSetter();
-            //get the JSON Object from Array at index point i with the KEY "card"
-            tempArrayObject = tempAssignListArray.getJSONObject(i).getJSONObject("card");
-            // Individually assign the String values to the list setter to be added to the List array object
-            listDetailSetter.setTitle(tempArrayObject.getString("title"));
-            listDetailSetter.setImageURL(tempArrayObject.getString("image_url"));
-            listDetailSetter.setPublishOn(tempArrayObject.getLong("publish_on"));
-
-            indexDetailSetter.add(listDetailSetter);
-        }
-    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -173,28 +130,28 @@ public class MainListingActivity extends ListActivity implements ThreadExample.C
         // which returns the values for that position in the array
         // Then it sends the data to the InflatedViewActivity to be displayed in the new view
         Intent inflateView = new Intent(this, InflatedViewActivity.class);
-        String inflatedTitle = indexDetailSetter.get(listPosition).getTitle();
+        String inflatedTitle = listContents.get(listPosition).title;
         inflateView.putExtra(TITLE_KEY(), inflatedTitle);
         startActivity(inflateView);
     }
 
-    public void createThreadExample() {
+    // Main Activity Fragment methods
+    public void createFeedThread() {
+        // Creates a headless fragment that contains the methods for reading the file and assigning
+        // te values to the ListArray
         FragmentManager fm = getFragmentManager();
         // Check to see if we have retained the worker fragment.
-        threadExample = (ThreadExample)fm.findFragmentByTag("retainedFragment");
-        upDateViewAsync = (UpdateViewAsync)fm.findFragmentByTag("retainedAsyncFragment");
+        dataStoreThread = (DataStore)fm.findFragmentByTag("feedReadFragment");
         // If not retained (or first time running), we need to create it.
-        if (threadExample == null) {
+        if (dataStoreThread == null) {
             // create instance of NON UI Fragment
-            threadExample = new ThreadExample();
+            dataStoreThread = new DataStore();
             // NON UI Fragment added
-            fm.beginTransaction().add(threadExample, "retainedFragment").commit();
-        }
-        if (upDateViewAsync == null) {
-            // create instance of NON UI Fragment
-            upDateViewAsync = new UpdateViewAsync();
-            // NON UI Fragment added
-            fm.beginTransaction().add(upDateViewAsync, "retainedAsyncFragment").commit();
+            fm.beginTransaction().add(dataStoreThread, "feedReadFragment").commit();
+
+            // Executes the reading of the file and assigning it to ListArray
+            // TODO should later be moved to refresh method or something similar currently only reading on app start or state changes
+            dataStoreThread.loadItems(getExternalFilesDir(null).toString(), indexFilename);
         }
     }
 
@@ -204,36 +161,62 @@ public class MainListingActivity extends ListActivity implements ThreadExample.C
         fm.beginTransaction().remove(fm.findFragmentByTag((fragmentID))).commit();
     }
 
-    public void modifyUI(String string) {
-        textView = (TextView) findViewById(R.id.pageHeader);
-        textView.setText(string);
+    // Main activity CallBack Methods
+    public void modifyUI() {
+        CustomListViewAdapter customAdapter = new CustomListViewAdapter(this, listContents);
+        // Assign adapter to ListView
+        // Needs to extend the ListActivity
+        setListAdapter(customAdapter);
     }
 
-    // Nestled class for Async Operation
-    class UIAsyncTask extends AsyncTask<String, String, String> {
-        // Async task that is capable of manipulating UI
-        // It needs to be inside the main Activity class
-        // At this moment in time i am uncertain of how to change the UI in any other threads or
-        // Async calls, without them being inside the main activity
-        String string;
-        protected String doInBackground(String... params) {
-            Log.d("Fragment", "thread = " + Thread.currentThread().getName());
-            string = params[0];
-            long endTime = System.currentTimeMillis() + 20 * 1000;
-            while (System.currentTimeMillis() < endTime) {
-                synchronized (this) {
-                    try {
-                       wait(endTime - System.currentTimeMillis());
-                    } catch (Exception e) {
-                    }
-                }
+    private class PollingThread extends Thread {
+        private boolean terminated = false;
+        private boolean paused = true;
+
+        final Handler pollingHandler = new Handler(Looper.getMainLooper()) {
+            @Override
+            public void handleMessage(Message msg) {
+                modifyUI();
             }
-            return string;
+        };
+
+        public void run() {
+            listContents = new ArrayList<>();
+            Message msg = new Message();
+            msg.setTarget(pollingHandler);
+            while (!terminated) {
+                //Log.d("PublishTIme", )
+                if (!paused && (lastPublishOn < dataStoreThread.getLastItem())) {
+                    Log.d("XXXXXX", "XXXXX");
+                    listContents.addAll(dataStoreThread.getItems(lastPublishOn));
+                    Log.d("ListContentSize", ""+listContents.size());
+
+                    lastPublishOn = dataStoreThread.getLastItem();
+                    // get out of listcontents
+                    //msg.sendToTarget();
+                    // use different wait method
+                }
+                //SystemClock.sleep(1000);
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                Log.d("Looped", "Loopy");
+            }
+
         }
 
-        protected void onPostExecute(String results) {
-            textView.setText(results);
+        public void terminate() {
+            terminated = false;
+        }
+        public void pause() {
+            paused = true;
+        }
+        public void unpause() {
+            paused = false;
         }
     }
+
 }
 
