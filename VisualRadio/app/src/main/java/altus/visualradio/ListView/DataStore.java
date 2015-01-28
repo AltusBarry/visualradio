@@ -13,9 +13,12 @@ import org.json.JSONObject;
 import org.json.JSONTokener;
 
 import java.io.BufferedReader;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.security.MessageDigest;
@@ -29,10 +32,29 @@ import java.util.concurrent.TimeUnit;
 public class DataStore extends Fragment {
     private static final String JSON_INDEX_KEY = "com.index_feed";
     private String fileDirectory;
-    private JSONArray readArray;
-    private ArrayList<ModelBase> listContent;
+    private JSONArray feedJSON = new JSONArray();
+    private ArrayList<ModelBase> contents = new ArrayList<>();
     private int lastPublishedOn;
+    private String externalDirectory;
 
+    public interface Callback
+    {
+        public void execute(ArrayList<ModelBase> lContents);
+    }
+
+    public class ContentsReady implements Callback
+    {
+        public void execute(ArrayList<ModelBase> lContents)
+        {
+//            contents = lContents.clone();
+        }
+    }
+
+    public void initialize(final String externalDirectory) {
+        this.externalDirectory = externalDirectory;
+        ContentsThread contentsThread = new ContentsThread(externalDirectory, new ContentsReady());
+        contentsThread.start();
+    }
 
     public void onAttach(Activity activity) {
         super.onAttach(activity);
@@ -44,45 +66,72 @@ public class DataStore extends Fragment {
         // It will also not recreate itself when the app changes states
         // Meaning the process can continue running uninterrupted
         this.setRetainInstance(true);
-        listContent = new ArrayList<>();
     }
 
     public void loadItems(final String directory, final String filename) {
         // Currently Unhandled thread, no call backs made to ensure main activity does not update
         // UI before reading is done
-        final Handler handler = new Handler() {
-            @Override
-            public void handleMessage(Message msg) {
-               // listUpdateCallBack.modifyUI();
-            }
-        };
-        Runnable runnable = new Runnable() {
-            public void run() {
-                try {
-                    readFile(directory, filename);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-               Message msg = new Message();
-               msg.setTarget(handler);
-               msg.sendToTarget();
-            }
-        };
-        Thread myThread = new Thread(runnable);
-        myThread.start();
     }
 
-    public JSONArray readFile(String directory, String filename) throws JSONException {
-        fileDirectory = directory;
-        // Read file into JSON array
-        // Assign file with name and directory of the VS_index_feed.json, which was created manually earlier
-        // Add each JSON object in Array into modelBase array list for use in view adapter to display list values
-        File msgFeedFile = new File(directory, filename);
+    public int getLastContent () {
+        return lastPublishedOn;
+    }
 
-        readArray = new JSONArray();
-        String tempString = "";
+    public ArrayList getContents(int lastPublishedOn) {
+        ArrayList<ModelBase> tempArray = new ArrayList<>();
 
-        if (msgFeedFile != null) {
+        for (int i = 0; i<contents.size(); i++) {
+            Log.d("PublishValue", (contents.get(i).publishOn));
+            if(Integer.parseInt(contents.get(i).publishOn) > lastPublishedOn) {
+                tempArray.add(contents.get(i));
+            }
+        }
+        return tempArray;
+    }
+
+    private class ContentsThread extends Thread {
+        private String externalDirectory;
+        private ArrayList<ModelBase> contents = new ArrayList<>();
+        private ContentsReady callback;
+
+        ContentsThread(String externalDirectory, ContentsReady callback) {
+            this.externalDirectory = externalDirectory;
+            this.callback = callback;
+        }
+
+        public void readFile(String directory, String filename) {
+            fileDirectory = directory;
+            // Read file into JSON array
+            // Assign file with name and directory of the VS_index_feed.json, which was created manually earlier
+            // Add each JSON object in Array into modelBase array list for use in view adapter to display list values
+            File msgFeedFile = new File(directory, filename);
+            File outPutFile = new File(directory, "feed.json");
+            FileInputStream stream;
+            FileOutputStream outputStream;
+            try {
+                stream = new FileInputStream(msgFeedFile);
+                outputStream = new FileOutputStream(outPutFile);
+                int length = (int) msgFeedFile.length();
+
+                byte[] buffer = new byte[length];
+                int readLength;
+                while((readLength = stream.read(buffer)) > 0) {
+                    outputStream.write(buffer, 0, readLength);
+                }
+                stream.close();
+                outputStream.close();
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+                Log.e("File not Found", "File may not have been downloaded");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        private void onFileRead() throws JSONException{
+            String tempString = "";
+            File msgFeedFile = new File(externalDirectory, "feed.json");
+
             // Create new file input stream
             FileInputStream fileInputStream = null;
             try {
@@ -113,62 +162,54 @@ public class DataStore extends Fragment {
             // Parse string from file through JSON tokener to extract characters and tokens properly
             JSONTokener jsonTokener = new JSONTokener(tempString);
             // DataStore the parsed string into JSONArray
-            readArray = new JSONArray(jsonTokener);
-        }
-       // lastPublishedOn = Integer.parseInt(readArray.getJSONObject(readArray.length()-1).getJSONObject("card").getString("publish_on"));
-        fillListArray();
-        return readArray;
-    }
+            feedJSON = new JSONArray(jsonTokener);
+            // lastPublishedOn = Integer.parseInt(readArray.getJSONObject(readArray.length()-1).getJSONObject("card").getString("publish_on"));
+            ModelBase tempListContentHolder = null;
 
-    public void fillListArray() throws JSONException {
-        ModelBase tempListContentHolder = null;
+            for (int i = 0; i < feedJSON.length(); i++) {
 
-        for (int i = 0; i < readArray.length(); i++) {
-            this.lastPublishedOn = Integer.parseInt(readArray.getJSONObject(i).getJSONObject("card").getString("publish_on"));
-            Log.d("CONTENT TYPE: ", readArray.getJSONObject(i).getJSONObject("card").getString("content_type"));
-            if (readArray.getJSONObject(i).getJSONObject("card").getString("content_type").equals("music")) {
-                tempListContentHolder = new Music(readArray.getJSONObject(i));
-                tempListContentHolder.type = "Music";
-            } else if (readArray.getJSONObject(i).getJSONObject("card").getString("content_type").equals("news")) {
-                tempListContentHolder = new Music(readArray.getJSONObject(i));
-                tempListContentHolder.type = "News";
+                Log.d("CONTENT TYPE: ", feedJSON.getJSONObject(i).getJSONObject("card").getString("content_type"));
+                if (feedJSON.getJSONObject(i).getJSONObject("card").getString("content_type").equals("music")) {
+                    tempListContentHolder = new Music(feedJSON.getJSONObject(i));
+                    tempListContentHolder.type = "Music";
+                } else if (feedJSON.getJSONObject(i).getJSONObject("card").getString("content_type").equals("news")) {
+                    tempListContentHolder = new Music(feedJSON.getJSONObject(i));
+                    tempListContentHolder.type = "News";
+                }
+                tempListContentHolder.imageDir = fileDirectory;
+                tempListContentHolder.imageName = createUniqueName(feedJSON.getJSONObject(i).getJSONObject("card").getString("image_url"));
+                contents.add(tempListContentHolder);
             }
-            tempListContentHolder.imageDir = fileDirectory;
-            tempListContentHolder.imageName = createUniqueName(readArray.getJSONObject(i).getJSONObject("card").getString("image_url"));
-            listContent.add(tempListContentHolder);
+           // lastPublishedOn = Integer.parseInt(feedJSON.getJSONObject(feedJSON.length()-1).getJSONObject("card").getString("publish_on"));
+
         }
-    }
 
-    public String createUniqueName(String Url) {
-        MessageDigest md = null;
-        try {
-            md = MessageDigest.getInstance("MD5");
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        }
-        md.update(Url.getBytes());
-		byte[] digest = md.digest();
-		StringBuffer sb = new StringBuffer();
-		for (byte b : digest) {
-			sb.append(String.format("%02x", b & 0xff));
-		}
-        return sb.toString();
-    }
-
-    public int getLastItem () {
-        return lastPublishedOn;
-    }
-
-    public ArrayList getItems(int lastPublishedOn) {
-        ArrayList<ModelBase> tempArray = new ArrayList<>();
-
-        for (int i = 0; i<listContent.size(); i++) {
-            Log.d("PublishVAlue", ""+Integer.parseInt(listContent.get(i).publishOn));
-            if(Integer.parseInt(listContent.get(i).publishOn) > lastPublishedOn) {
-                tempArray.add(listContent.get(i));
+        public String createUniqueName(String Url) {
+            MessageDigest md = null;
+            try {
+                md = MessageDigest.getInstance("MD5");
+            } catch (NoSuchAlgorithmException e) {
+                e.printStackTrace();
             }
+            md.update(Url.getBytes());
+            byte[] digest = md.digest();
+            StringBuffer sb = new StringBuffer();
+            for (byte b : digest) {
+                sb.append(String.format("%02x", b & 0xff));
+            }
+            return sb.toString();
         }
-        return tempArray;
+
+        public void run() {
+            readFile(externalDirectory, "VS_index_feed.json");
+            try {
+                onFileRead();
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            callback.execute(contents);
+        }
+
     }
 }
 

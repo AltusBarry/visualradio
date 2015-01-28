@@ -55,9 +55,8 @@ public class MainListingActivity extends ListActivity {
         setContentView(R.layout.activity_main_listing);
         // Variables given values for use later;
         indexFileDownloadAsync = new IndexFileDownloadAsync();
-        if(savedInstanceState == null) {
             createFeedThread();
-        }
+
         // **writeToIndexFile();** \\
         // Read Index DataStore into JSON Array and then displays it in the list view
 
@@ -80,7 +79,9 @@ public class MainListingActivity extends ListActivity {
 
     @Override
     protected void onDestroy() {
-        pollThread.terminate();
+        Log.d("Pre Terminate", "LOG");
+        pollThread.interrupt();
+        Log.d("Post terminate", "LOG");
         try {
             pollThread.join();
         } catch (InterruptedException e) {
@@ -151,7 +152,7 @@ public class MainListingActivity extends ListActivity {
 
             // Executes the reading of the file and assigning it to ListArray
             // TODO should later be moved to refresh method or something similar currently only reading on app start or state changes
-            dataStoreThread.loadItems(getExternalFilesDir(null).toString(), indexFilename);
+            dataStoreThread.initialize(getExternalFilesDir(null).toString());
         }
     }
 
@@ -173,6 +174,8 @@ public class MainListingActivity extends ListActivity {
         private boolean terminated = false;
         private boolean paused = true;
 
+        volatile int counter = 0;
+
         final Handler pollingHandler = new Handler(Looper.getMainLooper()) {
             @Override
             public void handleMessage(Message msg) {
@@ -184,25 +187,27 @@ public class MainListingActivity extends ListActivity {
             listContents = new ArrayList<>();
             Message msg = new Message();
             msg.setTarget(pollingHandler);
-            while (!terminated) {
+            while (!Thread.currentThread().isInterrupted()) {
                 //Log.d("PublishTIme", )
-                if (!paused && (lastPublishOn < dataStoreThread.getLastItem())) {
-                    Log.d("XXXXXX", "XXXXX");
-                    listContents.addAll(dataStoreThread.getItems(lastPublishOn));
-                    Log.d("ListContentSize", ""+listContents.size());
+                if (!paused && (dataStoreThread != null) && (lastPublishOn < dataStoreThread.getLastContent())) {
+                    Log.d("DataStoreLast Item Value", Integer.toString(dataStoreThread.getLastContent()));
+//                    Log.d("XXXXXX", "XXXXX");
+                    listContents.addAll(dataStoreThread.getContents(lastPublishOn));
+                    Log.d("ListContentSize", Integer.toString(listContents.size()));
 
-                    lastPublishOn = dataStoreThread.getLastItem();
+                    lastPublishOn = dataStoreThread.getLastContent();
                     // get out of listcontents
-                    //msg.sendToTarget();
+                     msg.sendToTarget();
                     // use different wait method
                 }
-                //SystemClock.sleep(1000);
                 try {
                     Thread.sleep(1000);
                 } catch (InterruptedException e) {
-                    e.printStackTrace();
+                    Thread.currentThread().interrupt();
+                    return;
                 }
-                Log.d("Looped", "Loopy");
+                counter++;
+                Log.d("Looped", Integer.toString(counter));
             }
 
         }
