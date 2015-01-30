@@ -19,8 +19,11 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.MessageDigest;
@@ -228,15 +231,16 @@ public class DataStore extends Fragment {
 
         public void readUrl() {
             JSONArray lArray;
+            File downloadedFile = new File(externalDirectory, "feed.json");
             try{
-                URL feedUrl = new URL("http://127.0.0.1:8080/");
+                URL feedUrl = new URL("http://192.168.1.106:8080");
                 BufferedReader input = new BufferedReader(new InputStreamReader(feedUrl.openStream()));
 
                 String line;
                 StringBuilder stringBuilder = new StringBuilder();
                 while ((line = input.readLine()) != null) {
                     stringBuilder.append(line);
-                    Log.d("String from URL", line);
+                    //Log.d("String from URL", line);
                 }
                 input.close();
                 String currentFeed = stringBuilder.toString();
@@ -245,6 +249,15 @@ public class DataStore extends Fragment {
                 // Feed the parsed string into JSONArray
                 lArray = new JSONArray(jsonTokener);
                 ModelBase tempListContentHolder = null;
+
+                try {
+                    FileOutputStream fileOutputStream = new FileOutputStream(downloadedFile, true);
+                    OutputStreamWriter outputStreamWriter = new OutputStreamWriter(fileOutputStream);
+                    outputStreamWriter.write(currentFeed);
+                    outputStreamWriter.close();
+                }catch (IOException e) {
+
+                }
 
                 for (int i = 0; i < lArray.length(); i++) {
 

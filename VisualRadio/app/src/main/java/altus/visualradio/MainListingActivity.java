@@ -209,7 +209,6 @@ public class MainListingActivity extends ListActivity {
                 counter++;
                 Log.d("Looped", Integer.toString(counter));
             }
-
         }
 
         public void terminate() {
