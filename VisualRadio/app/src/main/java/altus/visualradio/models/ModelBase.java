@@ -19,7 +19,7 @@ public class ModelBase {
 class Music extends ModelBase {
 
     public Music(JSONObject jsonObject) throws JSONException {
-        super();
+        super(jsonObject);
 
         String artist = jsonObject.getJSONObject("card").getString("artist");
     }

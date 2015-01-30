@@ -98,7 +98,7 @@ public class Feed {
         for(int i = 0; i<tempArray.length(); i++) {
             Log.d("CONTENT TYPE: ", tempArray.getJSONObject(i).getJSONObject("card").getString("content_type"));
             if(tempArray.getJSONObject(i).getJSONObject("card").getString("content_type").equals("music")) {
-                items[i] = (Music) (tempArray.getJSONObject(i));
+                //items[i] = (Music) (tempArray.getJSONObject(i));
             }
         }
 

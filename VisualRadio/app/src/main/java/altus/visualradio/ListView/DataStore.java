@@ -46,7 +46,7 @@ public class DataStore extends Fragment {
     {
         public void execute(ArrayList<ModelBase> lContents)
         {
-//            contents = lContents.clone();
+            contents = (ArrayList<ModelBase>) lContents.clone();
         }
     }
 
@@ -180,8 +180,7 @@ public class DataStore extends Fragment {
                 tempListContentHolder.imageName = createUniqueName(feedJSON.getJSONObject(i).getJSONObject("card").getString("image_url"));
                 contents.add(tempListContentHolder);
             }
-           // lastPublishedOn = Integer.parseInt(feedJSON.getJSONObject(feedJSON.length()-1).getJSONObject("card").getString("publish_on"));
-
+            lastPublishedOn = Integer.parseInt(feedJSON.getJSONObject(feedJSON.length()-1).getJSONObject("card").getString("publish_on"));
         }
 
         public String createUniqueName(String Url) {
