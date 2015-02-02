@@ -19,8 +19,13 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -46,7 +51,8 @@ public class DataStore extends Fragment {
     {
         public void execute(ArrayList<ModelBase> lContents)
         {
-//            contents = lContents.clone();
+            contents = (ArrayList<ModelBase>) lContents.clone();
+            lastPublishedOn = Integer.parseInt(contents.get(contents.size()-1).publishOn);
         }
     }
 
@@ -98,6 +104,7 @@ public class DataStore extends Fragment {
             this.externalDirectory = externalDirectory;
             this.callback = callback;
         }
+
 
         public void readFile(String directory, String filename) {
             fileDirectory = directory;
@@ -180,8 +187,7 @@ public class DataStore extends Fragment {
                 tempListContentHolder.imageName = createUniqueName(feedJSON.getJSONObject(i).getJSONObject("card").getString("image_url"));
                 contents.add(tempListContentHolder);
             }
-           // lastPublishedOn = Integer.parseInt(feedJSON.getJSONObject(feedJSON.length()-1).getJSONObject("card").getString("publish_on"));
-
+            lastPublishedOn = Integer.parseInt(feedJSON.getJSONObject(feedJSON.length()-1).getJSONObject("card").getString("publish_on"));
         }
 
         public String createUniqueName(String Url) {
@@ -201,15 +207,80 @@ public class DataStore extends Fragment {
         }
 
         public void run() {
-            readFile(externalDirectory, "VS_index_feed.json");
+/*            readFile(externalDirectory, "VS_index_feed.json");
             try {
                 onFileRead();
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-            callback.execute(contents);
+            callback.execute(contents);*/
+
+            while(!Thread.currentThread().isInterrupted()) {
+                readUrl();
+                callback.execute(contents);
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    return;
+                }
+            }
         }
 
+        // nested thread for polling of URL should later be replaced with somethign else.
+
+        public void readUrl() {
+            JSONArray lArray;
+            File downloadedFile = new File(externalDirectory, "feed.json");
+            try{
+                URL feedUrl = new URL("http://192.168.1.106:8080");
+                BufferedReader input = new BufferedReader(new InputStreamReader(feedUrl.openStream()));
+
+                String line;
+                StringBuilder stringBuilder = new StringBuilder();
+                while ((line = input.readLine()) != null) {
+                    stringBuilder.append(line);
+                    //Log.d("String from URL", line);
+                }
+                input.close();
+                String currentFeed = stringBuilder.toString();
+
+                JSONTokener jsonTokener = new JSONTokener(currentFeed);
+                // Feed the parsed string into JSONArray
+                lArray = new JSONArray(jsonTokener);
+                ModelBase tempListContentHolder = null;
+
+                try {
+                    FileOutputStream fileOutputStream = new FileOutputStream(downloadedFile, true);
+                    OutputStreamWriter outputStreamWriter = new OutputStreamWriter(fileOutputStream);
+                    outputStreamWriter.write(currentFeed);
+                    outputStreamWriter.close();
+                }catch (IOException e) {
+
+                }
+
+                for (int i = 0; i < lArray.length(); i++) {
+
+                    Log.d("CONTENT TYPE: ", lArray.getJSONObject(i).getJSONObject("card").getString("content_type"));
+                    if (lArray.getJSONObject(i).getJSONObject("card").getString("content_type").equals("music")) {
+                        tempListContentHolder = new Music(lArray.getJSONObject(i));
+                        tempListContentHolder.type = "Music";
+                    } else if (lArray.getJSONObject(i).getJSONObject("card").getString("content_type").equals("news")) {
+                        tempListContentHolder = new Music(lArray.getJSONObject(i));
+                        tempListContentHolder.type = "News";
+                    }
+                    tempListContentHolder.imageDir = fileDirectory;
+                    tempListContentHolder.imageName = createUniqueName(lArray.getJSONObject(i).getJSONObject("card").getString("image_url"));
+                    contents.add(tempListContentHolder);
+                }
+            }catch(MalformedURLException e) {
+                Log.e("URL Error", "URL not found");
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
     }
 }
 
