@@ -7,17 +7,11 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
-import android.os.SystemClock;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ListView;
-import android.widget.TextView;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.util.ArrayList;
 
@@ -35,7 +29,7 @@ public class MainListingActivity extends ListActivity {
     // Private in class variables
     private static      String serverIP = "http://192.168.0.246:8000/list.json";
     private static      String indexFilename = "VS_index_feed.json";
-    private             ArrayList<ModelBase> listContents;
+    private             ArrayList<ModelBase> listContents = new ArrayList<>();
     private             int lastPublishOn = 0;
     private             PollingThread pollThread;
 
@@ -53,15 +47,18 @@ public class MainListingActivity extends ListActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_listing);
+
         // Variables given values for use later;
         indexFileDownloadAsync = new IndexFileDownloadAsync();
-            createFeedThread();
+        createFeedThread();
+
 
         // **writeToIndexFile();** \\
         // Read Index DataStore into JSON Array and then displays it in the list view
 
         indexFileDownloadAsync.setFilePath(getExternalFilesDir(null).toString());
 
+        onContentsReady();
         pollThread = new PollingThread();
         pollThread.start();
          //indexFileDownloadAsync.execute(serverIP);
@@ -162,12 +159,20 @@ public class MainListingActivity extends ListActivity {
         fm.beginTransaction().remove(fm.findFragmentByTag((fragmentID))).commit();
     }
 
-    // Main activity CallBack Methods
-    public void modifyUI() {
-        CustomListViewAdapter customAdapter = new CustomListViewAdapter(this, listContents);
+    // Adapter assign and update methods
+    private CustomListViewAdapter customAdapter;
+    public void onContentsReady() {
+        customAdapter = new CustomListViewAdapter(this, listContents);
         // Assign adapter to ListView
         // Needs to extend the ListActivity
         setListAdapter(customAdapter);
+    }
+
+    public void adapterUpdate() {
+        //customAdapter.clear();
+        Log.d("SIZE: ", Integer.toString(listContents.size()));
+        customAdapter.addAll(listContents);
+        customAdapter.notifyDataSetChanged();
     }
 
     private class PollingThread extends Thread {
@@ -179,25 +184,21 @@ public class MainListingActivity extends ListActivity {
         final Handler pollingHandler = new Handler(Looper.getMainLooper()) {
             @Override
             public void handleMessage(Message msg) {
-                modifyUI();
+                Log.d("MainActivity/lastPublishOn", Integer.toString(lastPublishOn));
+                adapterUpdate();
             }
         };
 
         public void run() {
             listContents = new ArrayList<>();
-            Message msg = new Message();
-            msg.setTarget(pollingHandler);
             while (!Thread.currentThread().isInterrupted()) {
-                //Log.d("PublishTIme", )
-                if (!paused && (dataStoreThread != null) && (lastPublishOn < dataStoreThread.getLastContent())) {
-                    Log.d("DataStoreLast Item Value", Integer.toString(dataStoreThread.getLastContent()));
+                if (!paused && (dataStoreThread != null) && (lastPublishOn < dataStoreThread.getLastPub())) {
 //                    Log.d("XXXXXX", "XXXXX");
                     listContents.addAll(dataStoreThread.getContents(lastPublishOn));
-                    Log.d("ListContentSize", Integer.toString(listContents.size()));
 
-                    lastPublishOn = dataStoreThread.getLastContent();
+                    lastPublishOn = dataStoreThread.getLastPub();
                     // get out of listcontents
-                     msg.sendToTarget();
+                     pollingHandler.sendEmptyMessage(0);
                     // use different wait method
                 }
                 try {
