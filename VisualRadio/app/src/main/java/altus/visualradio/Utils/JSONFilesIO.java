@@ -18,6 +18,7 @@ import java.io.OutputStreamWriter;
 
 /**
  * Created by altus on 2015/02/02.
+ * Util class for use with JSON Objects
  */
 public class JSONFilesIO {
 
@@ -52,6 +53,7 @@ public class JSONFilesIO {
     }
 
     public static void writeArrayToFile(JSONArray jsonArray, File file) {
+        // Writes JSONArray to the input file
         FileOutputStream fileOutputStream = null;
         try {
             fileOutputStream = new FileOutputStream(file);
@@ -73,21 +75,37 @@ public class JSONFilesIO {
         }
     }
 
-    public static JSONArray concatArray(JSONArray array, JSONArray extraArray) {
+    public static JSONArray concatArray(JSONArray holderArray, JSONArray array) {
+        // Combines the 2 Arrays for output to file
         JSONObject obj = null;
-        for(int i = 0; i<array.length(); i++) {
-            try {
-                obj = array.getJSONObject(i);
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-            try {
-                extraArray.put(obj);
-                Log.d("JSONFilesIO/Extra object", extraArray.getJSONObject(i).toString());
-            } catch (JSONException e) {
-                e.printStackTrace();
+        JSONArray lArray = null;
+        try {
+            lArray = new JSONArray(array.toString());
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        // Limits ArrayList length and remove overflow values before adding new values
+        int totalLength = (holderArray.length() + lArray.length());
+        int minRemovedIndex = 20 - lArray.length();
+        Log.d("JSONIOTotal Length :", Integer.toString(totalLength));
+        if(totalLength >= 20) {
+            for (int i = (totalLength); i >=minRemovedIndex; i--) {
+                Log.d("JSONIODifference", Integer.toString(totalLength - 20));
+                holderArray.remove(i);
+                Log.d("JSONIOArray number removed", Integer.toString(i));
             }
         }
-        return extraArray;
+
+        // Adds old values behind newest values and returns a JSONArray
+        for(int i = 0; i<holderArray.length(); i++) {
+            try {
+                obj = holderArray.getJSONObject(i);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            lArray.put(obj);
+        }
+        return lArray;
     }
 }

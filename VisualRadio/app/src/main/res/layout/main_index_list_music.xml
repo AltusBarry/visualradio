@@ -18,7 +18,7 @@
 <!--Layout for text box area-->
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="95dp"
         android:orientation="vertical"
         android:layout_marginLeft="5dp"
         android:layout_marginRight="5dp"

@@ -5,6 +5,7 @@ import org.json.JSONObject;
 
 /**
  * Created by altus on 2015/01/20.
+ * The class used to store the data types that is used by the adapter to populate ListView
  */
 public class ModelBase {
     public String title;

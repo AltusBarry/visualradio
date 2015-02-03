@@ -1,7 +1,10 @@
 package altus.visualradio;
 
+import android.app.AlertDialog;
 import android.app.FragmentManager;
 import android.app.ListActivity;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -15,7 +18,6 @@ import android.widget.ListView;
 
 import java.util.ArrayList;
 
-import altus.visualradio.AsyncTasks.IndexFileDownloadAsync;
 import altus.visualradio.ListView.CustomListViewAdapter;
 import altus.visualradio.ListView.DataStore;
 import altus.visualradio.ListView.ModelBase;
@@ -26,19 +28,18 @@ import altus.visualradio.ListView.ModelBase;
 // Only one Async can be run at a time
 
 public class MainListingActivity extends ListActivity {
+    public static Context context;
+    public static Context getContext() {
+        return context;
+    }
     // Private in class variables
-    private static      String serverIP = "http://192.168.0.246:8000/list.json";
-    private static      String indexFilename = "VS_index_feed.json";
     private             ArrayList<ModelBase> listContents = new ArrayList<>();
     private             int lastPublishOn = 0;
     private             PollingThread pollThread;
 
     // KEY variables
-    private static      String JSON_INDEX_KEY = "com.index_feed";
     public static       String TITLE_KEY() {return "com.visual.header";}
 
-    // Non default variables
-    private             IndexFileDownloadAsync indexFileDownloadAsync;
 
     // Fragments
     private DataStore dataStoreThread;
@@ -46,17 +47,10 @@ public class MainListingActivity extends ListActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        // Inflates the main layout
         setContentView(R.layout.activity_main_listing);
-
-        // Variables given values for use later;
-        indexFileDownloadAsync = new IndexFileDownloadAsync();
+        // Creates the headless worker fragment
         createFeedThread();
-
-
-        // **writeToIndexFile();** \\
-        // Read Index DataStore into JSON Array and then displays it in the list view
-
-        indexFileDownloadAsync.setFilePath(getExternalFilesDir(null).toString());
 
         onContentsReady();
         pollThread = new PollingThread();
@@ -86,21 +80,6 @@ public class MainListingActivity extends ListActivity {
         }
         super.onDestroy();
     }
-
-   /* public void writeToIndexFile() {
-        // Creates an empty JSON file in the applications private external folder
-        // Which was then manually populated and later used
-
-        File msg_feed_file = new File(getExternalFilesDir(null), index_filename);
-        try {
-            FileOutputStream fileOutputStream = new FileOutputStream(msg_feed_file);
-            OutputStreamWriter outputStreamWriter = new OutputStreamWriter(fileOutputStream);
-            outputStreamWriter.write("Test_Value");
-            outputStreamWriter.close();
-        }catch (IOException e){
-            Log.e("Exception", "File write failed: "+e.toString());
-        }
-    }*/
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -148,7 +127,6 @@ public class MainListingActivity extends ListActivity {
             fm.beginTransaction().add(dataStoreThread, "feedReadFragment").commit();
 
             // Executes the reading of the file and assigning it to ListArray
-            // TODO should later be moved to refresh method or something similar currently only reading on app start or state changes
             dataStoreThread.initialize(getExternalFilesDir(null).toString());
         }
     }
@@ -169,10 +147,14 @@ public class MainListingActivity extends ListActivity {
     }
 
     public void adapterUpdate() {
-        //customAdapter.clear();
-        Log.d("SIZE: ", Integer.toString(listContents.size()));
+        Log.d("MainActivity/listSize: ", Integer.toString(listContents.size()));
+        // Clears the current index values of list, to ensure position data stays correct
+        customAdapter.clear();
+        // Adds all listContent Data
         customAdapter.addAll(listContents);
+        // Notifies the adapter that data has changed and it needs to update
         customAdapter.notifyDataSetChanged();
+        //customAdapter.notifyDataSetInvalidated();
     }
 
     private class PollingThread extends Thread {
@@ -185,6 +167,7 @@ public class MainListingActivity extends ListActivity {
             @Override
             public void handleMessage(Message msg) {
                 Log.d("MainActivity/lastPublishOn", Integer.toString(lastPublishOn));
+                // Fires the adapterUpdate method located in the main activity
                 adapterUpdate();
             }
         };
@@ -193,13 +176,25 @@ public class MainListingActivity extends ListActivity {
             listContents = new ArrayList<>();
             while (!Thread.currentThread().isInterrupted()) {
                 if (!paused && (dataStoreThread != null) && (lastPublishOn < dataStoreThread.getLastPub())) {
-//                    Log.d("XXXXXX", "XXXXX");
-                    listContents.addAll(dataStoreThread.getContents(lastPublishOn));
 
-                    lastPublishOn = dataStoreThread.getLastPub();
-                    // get out of listcontents
-                     pollingHandler.sendEmptyMessage(0);
-                    // use different wait method
+                    // Check if listContent will exceed maximum allowed list length after next Chunk is added
+                    // If it will exceed amount, enough indexes are cleared out at end of array to accommodate new data
+                    int totalLength = (listContents.size() + dataStoreThread.getContents(lastPublishOn).size());
+                    int minRemovedIndex = listContents.size() - (totalLength - 20);
+                    if(totalLength >= 20) {
+                        for (int i = (listContents.size()-1); i >=minRemovedIndex; i--) {
+                            listContents.remove(i);
+                        }
+                    }
+
+                    // New chunk of data is added at beginning of list Array
+                    listContents.addAll(0, dataStoreThread.getContents(lastPublishOn));
+
+                    // Last published on date is set to compare against newer data read in from url
+                    lastPublishOn = Integer.parseInt(listContents.get(0).publishOn);
+
+                    // Sends empty message to handler to initiate the update of the list view
+                    pollingHandler.sendEmptyMessage(0);
                 }
                 try {
                     Thread.sleep(1000);
@@ -221,6 +216,19 @@ public class MainListingActivity extends ListActivity {
         public void unpause() {
             paused = false;
         }
+    }
+
+    public static void closeApp() {
+        new AlertDialog.Builder(MainListingActivity.getContext())
+                .setTitle("Connection Failed")
+                .setMessage("Could not connect to server App will now close")
+                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+
+                        System.exit(0);
+                    }
+                });
+
     }
 
 }
