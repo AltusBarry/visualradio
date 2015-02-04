@@ -6,6 +6,7 @@ import android.app.ListActivity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -218,6 +219,7 @@ public class MainListingActivity extends ListActivity {
         }
     }
 
+    // TODO should use callback, non implemented at this time
     public static void closeApp() {
         new AlertDialog.Builder(MainListingActivity.getContext())
                 .setTitle("Connection Failed")
@@ -230,6 +232,5 @@ public class MainListingActivity extends ListActivity {
                 });
 
     }
-
 }
 

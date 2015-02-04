@@ -134,6 +134,7 @@ public class DataStore extends Fragment {
 
             while(!Thread.currentThread().isInterrupted()) {
                 readUrl();
+                // TODO seems to explicit, ind more elegant way to stop the thread from executing other methods
                 if(!error) {
                     callback.execute(contents);
                 }
