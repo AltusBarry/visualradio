@@ -3,10 +3,11 @@ package altus.visualradio;
 import android.app.AlertDialog;
 import android.app.FragmentManager;
 import android.app.ListActivity;
+import android.app.LoaderManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.net.Uri;
+import android.content.Loader;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -16,11 +17,13 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ListView;
+import android.widget.SimpleCursorAdapter;
 
 import java.util.ArrayList;
 
 import altus.visualradio.ListView.CustomListViewAdapter;
 import altus.visualradio.ListView.DataStore;
+import altus.visualradio.ListView.DataStoreLoader;
 import altus.visualradio.ListView.ModelBase;
 
 // After Handlers, Large parts should be shifted to Fragments.
@@ -30,9 +33,7 @@ import altus.visualradio.ListView.ModelBase;
 
 public class MainListingActivity extends ListActivity {
     public static Context context;
-    public static Context getContext() {
-        return context;
-    }
+
     // Private in class variables
     private             ArrayList<ModelBase> listContents = new ArrayList<>();
     private             int lastPublishOn = 0;
@@ -41,9 +42,8 @@ public class MainListingActivity extends ListActivity {
     // KEY variables
     public static       String TITLE_KEY() {return "com.visual.header";}
 
-
     // Fragments
-    private DataStore dataStoreThread;
+    private DataStore dataStoreFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,12 +51,13 @@ public class MainListingActivity extends ListActivity {
         // Inflates the main layout
         setContentView(R.layout.activity_main_listing);
         // Creates the headless worker fragment
-        createFeedThread();
+        initWorkerFragment();
 
-        onContentsReady();
+        initListView();
+
+        // Starts a thread taht will constatntly check for changes in list content
         pollThread = new PollingThread();
         pollThread.start();
-         //indexFileDownloadAsync.execute(serverIP);
     }
 
     protected void onStart() {
@@ -114,21 +115,21 @@ public class MainListingActivity extends ListActivity {
     }
 
     // Main Activity Fragment methods
-    public void createFeedThread() {
+    public void initWorkerFragment() {
         // Creates a headless fragment that contains the methods for reading the file and assigning
-        // te values to the ListArray
+        // the values to the ListArray
         FragmentManager fm = getFragmentManager();
         // Check to see if we have retained the worker fragment.
-        dataStoreThread = (DataStore)fm.findFragmentByTag("feedReadFragment");
+        dataStoreFragment = (DataStore)fm.findFragmentByTag("feedReadFragment");
         // If not retained (or first time running), we need to create it.
-        if (dataStoreThread == null) {
+        if (dataStoreFragment == null) {
             // create instance of NON UI Fragment
-            dataStoreThread = new DataStore();
+            dataStoreFragment = new DataStore();
             // NON UI Fragment added
-            fm.beginTransaction().add(dataStoreThread, "feedReadFragment").commit();
+            fm.beginTransaction().add(dataStoreFragment, "feedReadFragment").commit();
 
             // Executes the reading of the file and assigning it to ListArray
-            dataStoreThread.initialize(getExternalFilesDir(null).toString());
+            dataStoreFragment.initialize(getExternalFilesDir(null).toString());
         }
     }
 
@@ -140,7 +141,8 @@ public class MainListingActivity extends ListActivity {
 
     // Adapter assign and update methods
     private CustomListViewAdapter customAdapter;
-    public void onContentsReady() {
+
+    public void initListView() {
         customAdapter = new CustomListViewAdapter(this, listContents);
         // Assign adapter to ListView
         // Needs to extend the ListActivity
@@ -148,6 +150,7 @@ public class MainListingActivity extends ListActivity {
     }
 
     public void adapterUpdate() {
+        // Called when listContents has been updated, updates the list view
         Log.d("MainActivity/listSize: ", Integer.toString(listContents.size()));
         // Clears the current index values of list, to ensure position data stays correct
         customAdapter.clear();
@@ -155,10 +158,10 @@ public class MainListingActivity extends ListActivity {
         customAdapter.addAll(listContents);
         // Notifies the adapter that data has changed and it needs to update
         customAdapter.notifyDataSetChanged();
-        //customAdapter.notifyDataSetInvalidated();
     }
 
     private class PollingThread extends Thread {
+        // Thread that constantly polls to see if listContents is out of date with newest version
         private boolean terminated = false;
         private boolean paused = true;
 
@@ -176,11 +179,11 @@ public class MainListingActivity extends ListActivity {
         public void run() {
             listContents = new ArrayList<>();
             while (!Thread.currentThread().isInterrupted()) {
-                if (!paused && (dataStoreThread != null) && (lastPublishOn < dataStoreThread.getLastPub())) {
+                if (!paused && (dataStoreFragment != null) && (lastPublishOn < dataStoreFragment.getLastPub())) {
 
                     // Check if listContent will exceed maximum allowed list length after next Chunk is added
                     // If it will exceed amount, enough indexes are cleared out at end of array to accommodate new data
-                    int totalLength = (listContents.size() + dataStoreThread.getContents(lastPublishOn).size());
+                    int totalLength = (listContents.size() + dataStoreFragment.getContents(lastPublishOn).size());
                     int minRemovedIndex = listContents.size() - (totalLength - 20);
                     if(totalLength >= 20) {
                         for (int i = (listContents.size()-1); i >=minRemovedIndex; i--) {
@@ -189,7 +192,7 @@ public class MainListingActivity extends ListActivity {
                     }
 
                     // New chunk of data is added at beginning of list Array
-                    listContents.addAll(0, dataStoreThread.getContents(lastPublishOn));
+                    listContents.addAll(0, dataStoreFragment.getContents(lastPublishOn));
 
                     // Last published on date is set to compare against newer data read in from url
                     lastPublishOn = Integer.parseInt(listContents.get(0).publishOn);
@@ -220,17 +223,17 @@ public class MainListingActivity extends ListActivity {
     }
 
     // TODO should use callback, non implemented at this time
-    public static void closeApp() {
-        new AlertDialog.Builder(MainListingActivity.getContext())
-                .setTitle("Connection Failed")
-                .setMessage("Could not connect to server App will now close")
-                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-
-                        System.exit(0);
-                    }
-                });
-
+    public void closeApp() {
+       new AlertDialog.Builder(this)
+            .setTitle("Connection Failed")
+            .setMessage("Could not connect to server App will now close")
+            .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int which) {
+                    System.exit(0);
+                }
+            });
     }
 }
+
+
 

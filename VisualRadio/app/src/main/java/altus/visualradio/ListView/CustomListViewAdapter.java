@@ -1,8 +1,6 @@
 package altus.visualradio.ListView;
 
 import android.app.Activity;
-import android.graphics.AvoidXfermode;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -36,6 +34,7 @@ public class CustomListViewAdapter extends ArrayAdapter<ModelBase> {
         // News Specific
         String type;
     }
+
     public View getView(int position, View convertView, ViewGroup parent) {
         ModelBase indexList = getItem(position);
         ViewHolder viewHolder;
@@ -44,10 +43,11 @@ public class CustomListViewAdapter extends ArrayAdapter<ModelBase> {
 
         if (convertView == null) {
             viewHolder = new ViewHolder();
+            // TODO only inflating one type of view
             convertView = inflater.inflate(R.layout.main_index_list_music, parent, false);
             convertView.setTag(viewHolder);
-            viewHolder.artistName = (TextView) convertView.findViewById(R.id.text_artist_name);
 
+            viewHolder.artistName = (TextView) convertView.findViewById(R.id.text_artist_name);
             viewHolder.titleText = (TextView) convertView.findViewById(R.id.text_title);
             viewHolder.timeStamp = (TextView) convertView.findViewById(R.id.text_time_stamp);
 
@@ -67,6 +67,7 @@ public class CustomListViewAdapter extends ArrayAdapter<ModelBase> {
         viewHolder.titleText.setText(indexList.title);
         viewHolder.timeStamp.setText(indexList.publishOn);
 
+        // TODO Set different types of content
        // if (viewHolder.type.equals("Music")) {
             //music = (Music) getItem(position);
             //viewHolder.artistName.setText(music.artist);

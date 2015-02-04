@@ -1,9 +1,5 @@
 package altus.visualradio.Utils;
 
-import android.app.AlertDialog;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.os.SystemClock;
 import android.util.Log;
 
 import java.io.BufferedReader;
@@ -31,6 +27,7 @@ public class UrlIO {
         try {
             input = new BufferedReader(new InputStreamReader(feedUrl.openStream()));
         } catch (IOException e) {
+            Log.e("Cannot connect", "Connection Failed");
             throw e;
         }
         try {

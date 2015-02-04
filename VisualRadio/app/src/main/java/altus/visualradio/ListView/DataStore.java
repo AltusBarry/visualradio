@@ -1,9 +1,7 @@
 package altus.visualradio.ListView;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.Fragment;
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -36,16 +34,9 @@ import altus.visualradio.Utils.UrlIO;
  * and giving the main activity the data depending on the last publish value the main activity sends the fragment
  */
 public class DataStore extends Fragment {
-    private static final String JSON_INDEX_KEY = "com.index_feed";
     private ArrayList<ModelBase> contents = new ArrayList<>();
     private int lastPublishedOn;
     private String externalDirectory;
-    private MainListingActivity ma = new MainListingActivity();
-
-/*    public interface Callback
-    {
-        public void execute(ArrayList<ModelBase> lContents);
-    }*/
 
     public class ContentsReady //implements Callback
     {
@@ -55,10 +46,6 @@ public class DataStore extends Fragment {
             Log.d("DataStore/contentsSize: ", Integer.toString(contents.size()));
             lastPublishedOn = Integer.parseInt(contents.get(0).publishOn);
             Log.d("DataStore/LastPublishOn: ", Integer.toString(lastPublishedOn));
-        }
-
-        public void executeAlert() {
-            ma.closeApp();
         }
     }
 
@@ -81,13 +68,16 @@ public class DataStore extends Fragment {
     }
 
     public int getLastPub () {
+        // returns the Last publish_on value
         return lastPublishedOn;
     }
 
     public ArrayList getContents(int lastPublishedOn) {
+        // Compares lastPublishedOn value that the Main Activity sends through to only send the newest
+        // data back
         ArrayList<ModelBase> tempArray = new ArrayList<>();
 
-        for (int i = 0; i<contents.size(); i++) {
+        for (int i = 0; i < contents.size(); i++) {
             if(Integer.parseInt(contents.get(i).publishOn) > lastPublishedOn) {
                 tempArray.add(contents.get(i));
             }
@@ -96,6 +86,7 @@ public class DataStore extends Fragment {
     }
 
     private class ContentsThread extends Thread {
+        // Reads URL and updates contents
         private String externalDirectory;
         private ArrayList<ModelBase> contents = new ArrayList<>();
         private ContentsReady callback;
@@ -108,33 +99,17 @@ public class DataStore extends Fragment {
         final Handler alertHandler = new android.os.Handler(Looper.getMainLooper()) {
             @Override
             public void handleMessage(Message msg) {
-                callback.executeAlert();
+                //callback.closeApp();
             }
         };
 
-
-        public String createUniqueName(String Url) {
-            MessageDigest md = null;
-            try {
-                md = MessageDigest.getInstance("MD5");
-            } catch (NoSuchAlgorithmException e) {
-                e.printStackTrace();
-            }
-            md.update(Url.getBytes());
-            byte[] digest = md.digest();
-            StringBuffer sb = new StringBuffer();
-            for (byte b : digest) {
-                sb.append(String.format("%02x", b & 0xff));
-            }
-            return sb.toString();
-        }
         // TODO add check to not crash if URL is unavailable
         private boolean error = false;
-        public void run() {
 
+        public void run() {
             while(!Thread.currentThread().isInterrupted()) {
                 readUrl();
-                // TODO seems to explicit, ind more elegant way to stop the thread from executing other methods
+                // TODO currently just keeps app from crashing nothing happens
                 if(!error) {
                     callback.execute(contents);
                 }
@@ -155,8 +130,9 @@ public class DataStore extends Fragment {
             File cachedFile = new File(externalDirectory, "feed.json");
 
             try {
-                jt = new JSONTokener(UrlIO.readTextURL("http://192.168.0.244:8080"));
+                jt = new JSONTokener(UrlIO.readTextURL("http://192.168.0.246:8080"));
             }catch(IOException e) {
+                // TODO alert handler empty. App merely crashes if exception is thrown
                 alertHandler.sendEmptyMessage(1);
                 error = true;
                 return;
@@ -218,6 +194,24 @@ public class DataStore extends Fragment {
                 e.printStackTrace();
             }
         }
+
+        public String createUniqueName(String Url) {
+            // Creates a unique MD5 key from the incoming string
+            MessageDigest md = null;
+            try {
+                md = MessageDigest.getInstance("MD5");
+            } catch (NoSuchAlgorithmException e) {
+                e.printStackTrace();
+            }
+            md.update(Url.getBytes());
+            byte[] digest = md.digest();
+            StringBuffer sb = new StringBuffer();
+            for (byte b : digest) {
+                sb.append(String.format("%02x", b & 0xff));
+            }
+            return sb.toString();
+        }
     }
 }
+
 
