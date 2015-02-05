@@ -1,26 +1,40 @@
 package altus.visualradio.ListView;
 
-import android.app.Activity;
+import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
+import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import altus.visualradio.R;
 
 /**
  * Created by altus on 2015/01/12.
  */
-public class CustomListViewAdapter extends ArrayAdapter<ModelBase> {
+public class CustomListViewAdapter extends BaseAdapter {//ArrayAdapter<ModelBase> {
     private LayoutInflater inflater;
+    private ArrayList<ModelBase> models;
 
-    public CustomListViewAdapter(Activity activity, ArrayList indexList) {
-        super(activity, R.layout.main_index_list_music, indexList);
-        inflater = activity.getWindow().getLayoutInflater();
+    public CustomListViewAdapter(Context context, ArrayList<ModelBase> contents) {
+        this.models = contents;
+        inflater = LayoutInflater.from(context);
+    }
+
+    public void setData(List<ModelBase> data) {
+        if (models != null) {
+            models.clear();
+        } else {
+            models = new ArrayList<ModelBase>();
+        }
+        if (data != null) {
+            models.addAll(data);
+        }
+        notifyDataSetChanged();
     }
 
     public class ViewHolder {
@@ -36,7 +50,7 @@ public class CustomListViewAdapter extends ArrayAdapter<ModelBase> {
     }
 
     public View getView(int position, View convertView, ViewGroup parent) {
-        ModelBase indexList = getItem(position);
+        ModelBase indexItem = (ModelBase) getItem(position);
         ViewHolder viewHolder;
         ImageDownloader imageDownloader = new ImageDownloader();
         Music music = null;
@@ -57,15 +71,15 @@ public class CustomListViewAdapter extends ArrayAdapter<ModelBase> {
             viewHolder.position = position;
             // Launches a downloader Async task, its given the Directory, ImageUrl, ImageName,
             // where the Image view is located and the current position in the list
-            imageDownloader.execute(indexList.imageDir, indexList.imageUrl, indexList.imageName, viewHolder, position);
+
         } else {
             viewHolder = (ViewHolder) convertView.getTag();
         }
-        // Set view data
-
+        // Set Image data
+        imageDownloader.execute(indexItem.imageDir, indexItem.imageUrl, indexItem.imageName, viewHolder, position);
         //viewHolder.type = "Music";
-        viewHolder.titleText.setText(indexList.title);
-        viewHolder.timeStamp.setText(indexList.publishOn);
+        viewHolder.titleText.setText(indexItem.title);
+        viewHolder.timeStamp.setText(indexItem.publishOn);
 
         // TODO Set different types of content
        // if (viewHolder.type.equals("Music")) {
@@ -74,5 +88,17 @@ public class CustomListViewAdapter extends ArrayAdapter<ModelBase> {
         //}
 
         return convertView;
+    }
+
+    public int getCount() {
+        return models.size();
+    }
+
+    public Object getItem(int i) {
+        return models.get(i);
+    }
+
+    public long getItemId(int i) {
+        return i;
     }
 }
