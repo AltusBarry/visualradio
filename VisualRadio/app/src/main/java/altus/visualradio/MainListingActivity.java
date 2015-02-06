@@ -1,7 +1,7 @@
 package altus.visualradio;
 
+import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.FragmentManager;
 import android.app.ListActivity;
 import android.app.LoaderManager;
 import android.content.Context;
@@ -13,6 +13,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ListView;
 
 import java.util.ArrayList;
@@ -23,22 +24,18 @@ import altus.visualradio.ListView.DataDownloader;
 import altus.visualradio.ListView.ModelBase;
 import altus.visualradio.Loaders.DataStoreLoader;
 
-// After Handlers, Large parts should be shifted to Fragments.
-// ListView creation and population should be a Fragment.
-// Reading File should be a Fragment
-// Only one Async can be run at a time
+/**
+ * @author Altus Barry
+ * @version 1.0
+ *
+ * Main Activity of the app.
+ * Inflates the layouts and passes the app context on to the loader and adapter
+ */
 
 public class MainListingActivity extends ListActivity implements LoaderManager.LoaderCallbacks<List<ModelBase>>{
-    public static Context context;
+    // The loader's id as a final int, simply to ensure correct loader is always called and its id can be easily changed
     private static final int LOADER_ID = 0;
-
-    // Private in class variables
-
-    // KEY variables
-    public static       String TITLE_KEY() {return "com.visual.header";}
-
-    // Fragments
-    private DataDownloader dataStoreFragment;
+    private CustomListViewAdapter listAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,36 +77,64 @@ public class MainListingActivity extends ListActivity implements LoaderManager.L
         return super.onOptionsItemSelected(item);
     }
 
-    protected void onListItemClick(ListView indexList, View v, int listPosition, long id) {
+    // TODO pass whole ModelBase object, InflatedViewActivity should handle the getting of specifics
+    /**
+     * Start intent that will make use of the InflatedViewActivity class
+     * Gets the position number in the listView of tapped item,
+     * Makes a single instance of ModelBase to store send-able data in
+     * Then it sends the data to the InflatedViewActivity to be displayed in the new view
+     * @param list
+     * @param v
+     * @param listPosition
+     * @param id
+     */
+    protected void onListItemClick(ListView list, View v, int listPosition, long id) {
         // Start intent that will make use of the InflatedViewActivity class
-        // Gets the position number in the listView of tapped item, feeds it into the indexDetailSetter array
-        // which returns the values for that position in the array
+        // Gets the position number in the listView of tapped item,
+        // Makes a single instance of ModelBase to store send-able data in
         // Then it sends the data to the InflatedViewActivity to be displayed in the new view
         Intent inflateView = new Intent(this, InflatedViewActivity.class);
-        startActivity(inflateView);
-    }
+        ModelBase item = (ModelBase)  listAdapter.getItem(listPosition);
 
-    public void updateList (View view) {
-        getLoaderManager().getLoader(0).onContentChanged();
+        inflateView.putExtra("itemData", item);
+        startActivity(inflateView);
     }
     // END ANDROID SPECIFIC METHODS
 
-    // Initiate first time startup
-    private CustomListViewAdapter customAdapter;
-    public void initActivity() {
+    /**
+     * Triggers onContentChanged() which in turn changes teh value of takeContentChanged() to true and tells teh loader to
+     * and tells the loader to load new data
+     * @param view
+     */
+    public void updateList (View view) {
+        getLoaderManager().getLoader(LOADER_ID).onContentChanged();
+    }
+
+    /**
+     * Initiate first time startup
+     * sets the view to inflate
+     * initialises the loader
+     * and assigns the adapter to be used
+     */
+    private void initActivity() {
         // Inflates the main layout
         setContentView(R.layout.activity_main_listing);
 
-        getLoaderManager().initLoader(0, null, this);
+        // Create new loader or re use existing one
+        getLoaderManager().initLoader(LOADER_ID, null, this);
 
         // Assign adapter to ListView
-        customAdapter = new CustomListViewAdapter(this, new ArrayList<ModelBase>());
-        // Needs to extend the ListActivity
-        setListAdapter(customAdapter);
+        listAdapter = new CustomListViewAdapter(this, new ArrayList<ModelBase>());
+        // Main Activity needs to extend the ListActivity
+        setListAdapter(listAdapter);
+        Log.i("MainActivity.initActivity", " Layout Inflated;  Loader initialised;  Adapter set;");
     }
 
-    // TODO should use callback, non implemented at this time
-    public void closeApp() {
+    // TODO Not implemented at this time
+    /**
+     * Displays an Alert Dialogue when called
+     */
+    public void closeAppAlert() {
        new AlertDialog.Builder(this)
             .setTitle("Connection Failed")
             .setMessage("Could not connect to server App will now close")
@@ -120,16 +145,29 @@ public class MainListingActivity extends ListActivity implements LoaderManager.L
             });
     }
 
-    //Loader methods and callbacks
+    //LOADER METHODS AND CALLBACKS
+    /**
+     * returns the application context to the loader class, to ensure no data leaks occur on activity recreate
+     * @param id loader to be created`s id
+     * @param args any arguments to be passed to loader
+     * @return
+     */
     @Override
     public Loader<List<ModelBase>> onCreateLoader(int id, Bundle args) {
         return new DataStoreLoader(getApplicationContext());
     }
 
+    /**
+     * Callback for when loader loadInBackground has been completed
+     * sets and updates the list Adapter's data
+     * @param loader
+     * @param data
+     */
     @Override
     public void onLoadFinished(Loader<List<ModelBase>> loader, List<ModelBase> data) {
-        customAdapter.setData(data);
-        Log.d("MainActivity/listSize: ", Integer.toString(data.size()));
+        listAdapter.setData(data);
+        Log.i("MainActivity.onLoadFinished(): ", "Adapter Data set");
+        Log.i("MainActivity.listSize: ", Integer.toString(data.size()));
     }
 
     @Override

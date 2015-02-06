@@ -23,13 +23,15 @@ import altus.visualradio.Utils.UrlIO;
 
 /**
  * Created by altus on 2015/01/20.
- * Headless fragment
- * Fragment is retained across state changes
- * Fragment does most of its heavy work in a thread
- * Fragment in charge of Downloading data from URL
- * populating the list data
- * writing out list data to cached file
- * and giving the main activity the data depending on the last publish value the main activity sends the fragment
+ * @author  Altus Barry
+ * @version 1.0
+ *
+ * Does most of its heavy work in a thread
+ * In charge of Downloading data from URL
+ * and populating the list data
+ * as well as writing out list data to cached file
+ *
+ * Loader calls on new contents when it is alerted about data change.
  */
 public class DataDownloader {
     private ArrayList<ModelBase> contents = new ArrayList<>();
@@ -72,13 +74,11 @@ public class DataDownloader {
         };
 
         // TODO add check to not crash if URL is unavailable
-        private boolean error = false;
-
         public void run() {
             while(!Thread.currentThread().isInterrupted()) {
                 readUrl();
                 // TODO currently just keeps app from crashing nothing happens
-                if(!error) {
+                if(readUrl()) {
                     callback.notify(contents);
                 }
                 try {
@@ -91,21 +91,19 @@ public class DataDownloader {
         }
 
         // Polling url for changes
-        public void readUrl() {
+        public boolean readUrl() {
             // Parse JSON and update cache file
             JSONTokener jt = null;
             JSONArray arr = new JSONArray();
             File cachedFile = new File(externalDirectory, "feed.json");
 
             try {
-                jt = new JSONTokener(UrlIO.readTextURL("http://192.168.0.246:8080"));
+                jt = new JSONTokener(UrlIO.readTextURL("http://192.168.0.243:8080"));
             }catch(IOException e) {
                 // TODO alert handler empty. App merely crashes if exception is thrown
                 alertHandler.sendEmptyMessage(1);
-                error = true;
-                return;
+                return false;
             }
-
             // Feed the parsed string into JSONArray
             try {
                 arr = new JSONArray(jt);
@@ -140,6 +138,7 @@ public class DataDownloader {
             ModelBase mbObj = null;
             JSONObject obj = null;
 
+            // Adds read data into contents list. Contents list is limited to 20 objects and is a ModeBase object
             try{
                 for (int i = arr.length()-1; i >= 0; i--) {
                     obj = arr.getJSONObject(i);
@@ -161,6 +160,7 @@ public class DataDownloader {
             } catch (JSONException e) {
                 e.printStackTrace();
             }
+            return true;
         }
 
         public String createUniqueName(String Url) {

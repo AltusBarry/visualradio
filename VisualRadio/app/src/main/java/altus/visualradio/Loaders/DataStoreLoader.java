@@ -12,6 +12,9 @@ import altus.visualradio.ListView.ModelBase;
 
 /**
  * Created by altus on 2015/02/04.
+ * @author  Altus Barry
+ * @version 1.0
+ *
  */
 public class DataStoreLoader extends AsyncTaskLoader<List<ModelBase>> {
     private DataDownloader dl = new DataDownloader();
@@ -35,11 +38,8 @@ public class DataStoreLoader extends AsyncTaskLoader<List<ModelBase>> {
             deliverResult(mContents);
         }
 
+        // onContentChanged() call causes next call of takeContentChanged() to return true.
         if (takeContentChanged()) {
-            // When the observer detects a change, it should call onContentChanged()
-            // on the Loader, which will cause the next call to takeContentChanged()
-            // to return true. If this is ever the case (or if the current data is
-            // null), we force a new load.
             forceLoad();
         }
     }
@@ -50,21 +50,10 @@ public class DataStoreLoader extends AsyncTaskLoader<List<ModelBase>> {
             releaseResources(data);
             return;
         }
-
-        // Hold a reference to the old data so it doesn't get garbage collected.
-        // We must protect it until the new data has been delivered.
-        List<ModelBase> oldData = mContents;
         mContents = data;
 
-        // if (isStarted()) {
-        // If the Loader is in a started state, deliver the results to the
-        // client. The superclass method does this for us.
-        super.deliverResult(data);
-        // }
-
-        // Invalidate the old data as we don't need it any more.
-        if (oldData != null && oldData != data) {
-            releaseResources(oldData);
+        if (isStarted()) {
+            super.deliverResult(data);
         }
     }
 

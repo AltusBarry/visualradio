@@ -3,11 +3,13 @@ package altus.visualradio.ListView;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.Serializable;
+
 /**
  * Created by altus on 2015/01/20.
- * The class used to store the data types that is used by the adapter to populate ListView
+ * The class is used as a variable to store all the list data in one object type
  */
-public class ModelBase {
+public class ModelBase implements Serializable {
     public String title;
     public String imageUrl;
     public String publishOn;

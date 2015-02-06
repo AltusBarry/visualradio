@@ -17,7 +17,6 @@ import java.net.URLConnection;
  * Created by altus on 2015/01/22.
  */
 
-//TODO MAKE THIS A AsyncTask
 public class ImageDownloader extends AsyncTask<Object, Void, Bitmap> {
     private Bitmap image;
     private CustomListViewAdapter.ViewHolder viewHolder;
@@ -47,9 +46,7 @@ public class ImageDownloader extends AsyncTask<Object, Void, Bitmap> {
         protected void onPostExecute(Bitmap result) {
             // The returned image is set to the imageView at the correct position
             super.onPostExecute(result);
-            if(viewHolder.position == position) {
-                viewHolder.imageView.setImageBitmap(result);
-            }
+            viewHolder.imageView.setImageBitmap(result);
         }
 
         public Bitmap downLoadFile(String dir, String Url, String name) throws IOException {

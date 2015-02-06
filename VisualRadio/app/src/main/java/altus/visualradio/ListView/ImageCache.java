@@ -1,12 +1,13 @@
 package altus.visualradio.ListView;
 
+import android.app.Application;
 import android.graphics.Bitmap;
 import android.util.LruCache;
 
 /**
  * Created by altus on 2015/01/26.
  */
-public class ImageCache {
+public class ImageCache extends Application{
     private LruCache<String, Bitmap> mMemoryCache;
 
     public void setMemoryCache() {
