@@ -1,10 +1,8 @@
 package altus.visualradio;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ListActivity;
 import android.app.LoaderManager;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.Loader;
@@ -13,14 +11,14 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.ListView;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
 import altus.visualradio.ListView.CustomListViewAdapter;
-import altus.visualradio.ListView.DataDownloader;
 import altus.visualradio.ListView.ModelBase;
 import altus.visualradio.Loaders.DataStoreLoader;
 
@@ -42,6 +40,13 @@ public class MainListingActivity extends ListActivity implements LoaderManager.L
         super.onCreate(savedInstanceState);
 
         initActivity();
+        SocketClient client = null;
+        try {
+            client = new SocketClient(new URI("ws://qa-visual-radio.za.prk-host.net:8888/subscribe"));
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        }
+        client.connect();
     }
 
     protected void onStart() {

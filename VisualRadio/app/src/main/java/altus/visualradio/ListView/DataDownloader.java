@@ -98,7 +98,7 @@ public class DataDownloader {
             File cachedFile = new File(externalDirectory, "feed.json");
 
             try {
-                jt = new JSONTokener(UrlIO.readTextURL("http://192.168.0.243:8080"));
+                jt = new JSONTokener(UrlIO.readTextURL("http://192.168.0.249:8080"));
             }catch(IOException e) {
                 // TODO alert handler empty. App merely crashes if exception is thrown
                 alertHandler.sendEmptyMessage(1);
