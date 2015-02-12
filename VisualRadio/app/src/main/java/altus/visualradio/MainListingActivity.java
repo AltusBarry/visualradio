@@ -1,8 +1,8 @@
 package altus.visualradio;
 
 import android.app.AlertDialog;
+import android.app.FragmentManager;
 import android.app.ListActivity;
-import android.app.LoaderManager;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.Loader;
@@ -13,14 +13,12 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ListView;
 
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
 import altus.visualradio.ListView.CustomListViewAdapter;
+import altus.visualradio.ListView.DataHandler;
 import altus.visualradio.ListView.ModelBase;
-import altus.visualradio.Loaders.DataStoreLoader;
 
 /**
  * @author Altus Barry
@@ -30,7 +28,7 @@ import altus.visualradio.Loaders.DataStoreLoader;
  * Inflates the layouts and passes the app context on to the loader and adapter
  */
 
-public class MainListingActivity extends ListActivity implements LoaderManager.LoaderCallbacks<List<ModelBase>>{
+public class MainListingActivity extends ListActivity implements DataHandler.ActivityCallBack{
     // The loader's id as a final int, simply to ensure correct loader is always called and its id can be easily changed
     private static final int LOADER_ID = 0;
     private CustomListViewAdapter listAdapter;
@@ -40,13 +38,7 @@ public class MainListingActivity extends ListActivity implements LoaderManager.L
         super.onCreate(savedInstanceState);
 
         initActivity();
-        SocketClient client = null;
-        try {
-            client = new SocketClient(new URI("ws://qa-visual-radio.za.prk-host.net:8888/subscribe"));
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
-        }
-        client.connect();
+
     }
 
     protected void onStart() {
@@ -107,15 +99,6 @@ public class MainListingActivity extends ListActivity implements LoaderManager.L
     // END ANDROID SPECIFIC METHODS
 
     /**
-     * Triggers onContentChanged() which in turn changes teh value of takeContentChanged() to true and tells teh loader to
-     * and tells the loader to load new data
-     * @param view
-     */
-    public void updateList (View view) {
-        getLoaderManager().getLoader(LOADER_ID).onContentChanged();
-    }
-
-    /**
      * Initiate first time startup
      * sets the view to inflate
      * initialises the loader
@@ -125,14 +108,24 @@ public class MainListingActivity extends ListActivity implements LoaderManager.L
         // Inflates the main layout
         setContentView(R.layout.activity_main_listing);
 
-        // Create new loader or re use existing one
-        getLoaderManager().initLoader(LOADER_ID, null, this);
-
         // Assign adapter to ListView
         listAdapter = new CustomListViewAdapter(this, new ArrayList<ModelBase>());
         // Main Activity needs to extend the ListActivity
         setListAdapter(listAdapter);
         Log.i("MainActivity.initActivity", " Layout Inflated;  Loader initialised;  Adapter set;");
+
+        initFragment();
+    }
+
+    private static final String FRAGMENT_TAG = ".DataHandler";
+    private void initFragment() {
+        FragmentManager fm = getFragmentManager();
+        DataHandler dh = (DataHandler) fm.findFragmentByTag(FRAGMENT_TAG);
+
+        if(dh == null) {
+            dh = new DataHandler();
+            fm.beginTransaction().add(dh,FRAGMENT_TAG).commit();
+        }
     }
 
     // TODO Not implemented at this time
@@ -150,34 +143,12 @@ public class MainListingActivity extends ListActivity implements LoaderManager.L
             });
     }
 
-    //LOADER METHODS AND CALLBACKS
-    /**
-     * returns the application context to the loader class, to ensure no data leaks occur on activity recreate
-     * @param id loader to be created`s id
-     * @param args any arguments to be passed to loader
-     * @return
-     */
     @Override
-    public Loader<List<ModelBase>> onCreateLoader(int id, Bundle args) {
-        return new DataStoreLoader(getApplicationContext());
-    }
-
-    /**
-     * Callback for when loader loadInBackground has been completed
-     * sets and updates the list Adapter's data
-     * @param loader
-     * @param data
-     */
-    @Override
-    public void onLoadFinished(Loader<List<ModelBase>> loader, List<ModelBase> data) {
-        listAdapter.setData(data);
-        Log.i("MainActivity.onLoadFinished(): ", "Adapter Data set");
-        Log.i("MainActivity.listSize: ", Integer.toString(data.size()));
-    }
-
-    @Override
-    public void onLoaderReset(Loader<List<ModelBase>> loader) {
-
+    public void updateList() {
+        FragmentManager fm = getFragmentManager();
+        DataHandler dh = (DataHandler) fm.findFragmentByTag(FRAGMENT_TAG);
+        listAdapter.setData(dh.getContents());
+        Log.d("CPnt", Integer.toString(listAdapter.getCount()));
     }
 }
 

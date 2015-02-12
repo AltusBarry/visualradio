@@ -2,12 +2,10 @@ package altus.visualradio.Loaders;
 
 import android.content.AsyncTaskLoader;
 import android.content.Context;
-import android.util.Log;
 
 import java.util.List;
 import java.util.ArrayList;
 
-import altus.visualradio.ListView.DataDownloader;
 import altus.visualradio.ListView.ModelBase;
 
 /**
@@ -17,18 +15,17 @@ import altus.visualradio.ListView.ModelBase;
  *
  */
 public class DataStoreLoader extends AsyncTaskLoader<List<ModelBase>> {
-    private DataDownloader dl = new DataDownloader();
     private List<ModelBase> mContents;
+
+
 
     public DataStoreLoader(Context context) {
         super(context);
-        dl.initialize((context.getExternalFilesDir(null)).toString());
-        Log.i("Extrenal File directory", (context.getExternalFilesDir(null)).toString());
     }
 
     @Override
     public List<ModelBase> loadInBackground() {
-        List<ModelBase> list = new ArrayList<ModelBase>(dl.getContent());
+        List<ModelBase> list = new ArrayList<ModelBase>();
         return list;
     }
 

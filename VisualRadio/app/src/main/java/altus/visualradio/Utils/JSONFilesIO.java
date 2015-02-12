@@ -108,4 +108,30 @@ public class JSONFilesIO {
         }
         return lArray;
     }
+
+    /**
+     * Parses coming messages into an JSONArray
+     * @param message
+     * @return
+     */
+    public static JSONArray parseToArray(String message) {
+        JSONObject jobj = null;
+        JSONTokener jt = new JSONTokener(message);
+        JSONArray arr = new JSONArray();
+
+        try {
+            arr = new JSONArray(jt);
+        } catch (JSONException e) {
+            try {
+                jobj = new JSONObject(message);
+                arr.put(jobj);
+            } catch (JSONException e1) {
+                Log.e("JSON Error", "Data is not in JSON format");
+                e1.printStackTrace();
+            }
+/*              Log.e("JSON Error", "Data is not in JSONArray format");
+                e.printStackTrace();*/
+        }
+        return arr;
+    }
 }

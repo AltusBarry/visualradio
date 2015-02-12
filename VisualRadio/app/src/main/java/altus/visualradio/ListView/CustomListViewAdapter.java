@@ -43,6 +43,7 @@ public class CustomListViewAdapter extends BaseAdapter {//ArrayAdapter<ModelBase
             models.addAll(data);
         }
         notifyDataSetChanged();
+        Log.i("Incoming Size " + data.size(), "Current Set Size " + models.size());
     }
 
     /**
@@ -54,12 +55,13 @@ public class CustomListViewAdapter extends BaseAdapter {//ArrayAdapter<ModelBase
         ImageView imageView;
         TextView titleText;
         TextView timeStamp;
-        TextView rowPosition;
 
         // Music Specific
         TextView artistName;
 
-        // News Specific
+        // Posts Specific
+        TextView content;
+
         String type;
     }
 
@@ -68,16 +70,26 @@ public class CustomListViewAdapter extends BaseAdapter {//ArrayAdapter<ModelBase
         ViewHolder viewHolder;
         ImageDownloader imageDownloader = new ImageDownloader();
         Music music = null;
+        Post post = null;
 
         // if current view does not exist, inflate new layout and add views to viewHolder
         if (convertView == null) {
             viewHolder = new ViewHolder();
             // TODO only inflating one type of view
-            convertView = inflater.inflate(R.layout.main_index_list_music, parent, false);
             convertView.setTag(viewHolder);
 
-            viewHolder.artistName = (TextView) convertView.findViewById(R.id.text_artist_name);
             viewHolder.titleText = (TextView) convertView.findViewById(R.id.text_title);
+
+            if(indexItem.type.equals("music")) {
+                convertView = inflater.inflate(R.layout.main_index_list_music, parent, false);
+                viewHolder.artistName = (TextView) convertView.findViewById(R.id.text_artist_name);
+                viewHolder.type = "music";
+            }else if (indexItem.type.equals("post")) {
+                convertView = inflater.inflate(R.layout.main_index_list_post, parent, false);
+                viewHolder.content = (TextView) convertView.findViewById(R.id.text_post);
+                viewHolder.type = "post";
+            }
+
             viewHolder.timeStamp = (TextView) convertView.findViewById(R.id.text_time_stamp);
 
             // Assign image view into a ViewHolder class, which is then updated when the Async task
@@ -98,10 +110,13 @@ public class CustomListViewAdapter extends BaseAdapter {//ArrayAdapter<ModelBase
         viewHolder.timeStamp.setText(indexItem.publishOn);
 
         // TODO Set different types of content
-       // if (viewHolder.type.equals("Music")) {
-            //music = (Music) getItem(position);
-            //viewHolder.artistName.setText(music.artist);
-        //}
+        if (viewHolder.type.equals("music")) {
+            music = (Music) getItem(position);
+            viewHolder.artistName.setText(music.artist);
+        }else if(viewHolder.type.equals("post")) {
+            post = (Post) getItem(position);
+            viewHolder.content.setText(post.content);
+        }
 
         return convertView;
     }

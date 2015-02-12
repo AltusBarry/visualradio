@@ -22,7 +22,7 @@ public class ModelBase implements Serializable {
         title = jsonObject.getJSONObject("card").getString("title");
         imageUrl = jsonObject.getJSONObject("card").getString("image_url");
         publishOn = jsonObject.getJSONObject("card").getString("publish_on");
-        //type = jsonObject.getJSONObject("card").getString("content_type");
+        type = jsonObject.getJSONObject("card").getString("content_type");
     }
 }
 
@@ -33,6 +33,16 @@ class Music extends ModelBase {
         super(jsonObject);
 
         artist = jsonObject.getJSONObject("card").getString("artist");
+    }
+}
+
+class Post extends ModelBase {
+    public String content;
+
+    public Post(JSONObject jsonObject) throws JSONException {
+        super(jsonObject);
+
+        content = jsonObject.getJSONObject("card").getString("content");
     }
 }
 

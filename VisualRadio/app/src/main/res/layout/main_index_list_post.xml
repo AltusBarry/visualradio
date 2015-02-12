@@ -44,7 +44,7 @@
             android:lines="3"
             android:textColor="#ff000000"
             android:textSize="14sp"
-            android:id="@+id/text_snippet" />
+            android:id="@+id/text_post" />
 
         <TextView
             android:layout_width="match_parent"
