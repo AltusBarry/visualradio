@@ -1,9 +1,14 @@
 package altus.visualradio.ListView;
 
+import android.text.format.DateFormat;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.Serializable;
+import java.security.Timestamp;
+import java.util.Calendar;
+import java.util.Locale;
 
 /**
  * Created by altus on 2015/01/20.
@@ -21,10 +26,19 @@ public class ModelBase implements Serializable {
     public ModelBase(JSONObject jsonObject) throws JSONException {
         title = jsonObject.getJSONObject("card").getString("title");
         imageUrl = jsonObject.getJSONObject("card").getString("image_url");
-        publishOn = jsonObject.getJSONObject("card").getString("publish_on");
+        publishOn = getDate(Long.parseLong(jsonObject.getJSONObject("card").getString("publish_on")));
         type = jsonObject.getJSONObject("card").getString("content_type");
     }
+
+    private String getDate(long time) {
+        Calendar cal = Calendar.getInstance(Locale.ENGLISH);
+        cal.setTimeInMillis(time*1000);
+        String date = DateFormat.format("hh:mm aa", cal).toString();
+        return date;
+    }
 }
+
+
 
 class Music extends ModelBase {
     public String artist;
@@ -45,7 +59,6 @@ class Post extends ModelBase {
         content = jsonObject.getJSONObject("card").getString("content");
     }
 }
-
 
 
 

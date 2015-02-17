@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#eeeeee"
+    android:gravity="center"
+    android:orientation="vertical" >
+
+    <!--PLACEHOLDER IMAGE-->
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginLeft="5dp"
+        android:layout_marginTop="5dp"
+        android:src="@drawable/ic_launcher"
+        android:layout_gravity="center"
+        android:id="@+id/index_picture"/>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="#fff"
+        android:padding="10dp"
+        android:layout_below="@id/index_picture">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Header Text"
+            android:textSize="19sp"
+            android:textColor="#ff000000"
+            android:textStyle="bold"
+            android:id="@+id/text_title"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Body Text Here"
+            android:layout_gravity="center_vertical"
+            android:layout_marginTop="5dp"
+            android:ellipsize="end"
+            android:textColor="#ff000000"
+            android:textSize="14sp"
+            android:id="@+id/text_body"
+            android:layout_below="@id/text_title"/>
+        <!--
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="7 January 2015"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginTop="5dp"
+                    android:textColor="#ff000000"
+                    android:textSize="12sp"
+                    android:textStyle="italic"
+                    android:id="@+id/text_time_stamp"/>
+                    -->
+    </RelativeLayout>
+
+</RelativeLayout>

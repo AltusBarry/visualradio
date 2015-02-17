@@ -91,9 +91,7 @@ public class JSONFilesIO {
         Log.d("JSONIOTotal Length :", Integer.toString(totalLength));
         if(totalLength >= 20) {
             for (int i = (totalLength); i >=minRemovedIndex; i--) {
-                Log.d("JSONIODifference", Integer.toString(totalLength - 20));
                 holderArray.remove(i);
-                Log.d("JSONIOArray number removed", Integer.toString(i));
             }
         }
 

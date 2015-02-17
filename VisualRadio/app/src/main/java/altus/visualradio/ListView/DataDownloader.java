@@ -49,12 +49,9 @@ public class DataDownloader {
 
         this.externalDirectory = externalDirectory;
         ContentsThread contentsThread = new ContentsThread(externalDirectory, new ContentsReady());
-
-        // TODO Removed downloader thread temporarily to keep log clear
-        //contentsThread.start();
+        contentsThread.start();
     }
 
-    // Returns the Arraylist in the form of ModelBase
     public ArrayList getContent() {
         return contents;
     }

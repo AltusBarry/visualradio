@@ -21,8 +21,8 @@
         </activity>
         <!--INFLATE THE TEXT AREA ACTIVITY-->
         <activity
-           android:name=".InflatedViewActivity"
-           android:label=""
+           android:name=".ListView.InflatedViewActivity"
+           android:label=".InflatedViewActivity"
             android:parentActivityName=".MainListingActivity"></activity>
     </application>
 
