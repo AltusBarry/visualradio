@@ -37,4 +37,16 @@ public class DataHandler extends Fragment {
             return this.contents;
     }
 
+    class fileSystemPoll extends Thread {
+
+        public void Run() {
+            while(!Thread.currentThread().isInterrupted()) {
+                try {
+                    Thread.currentThread().sleep(36000000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
 }

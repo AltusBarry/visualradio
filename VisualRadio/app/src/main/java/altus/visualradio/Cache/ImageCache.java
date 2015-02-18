@@ -1,7 +1,8 @@
-package altus.visualradio.ListView;
+package altus.visualradio.Cache;
 
 import android.app.Application;
 import android.graphics.Bitmap;
+import android.util.Log;
 import android.util.LruCache;
 
 /**
@@ -30,6 +31,10 @@ public class ImageCache extends Application{
     }
 
     public Bitmap getBitmapFromMemCache(String key) {
-        return mMemoryCache.get(key);
+        try {
+            return mMemoryCache.get(key);
+        } catch (NullPointerException e) {
+            return null;
+        }
     }
 }

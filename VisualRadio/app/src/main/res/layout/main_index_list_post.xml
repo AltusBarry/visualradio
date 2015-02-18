@@ -63,7 +63,6 @@
         android:layout_weight="0"
         android:src="@drawable/ic_launcher"
         android:id="@+id/index_picture">
-
     </ImageView>
 
 </RelativeLayout>

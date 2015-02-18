@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -21,10 +22,12 @@ import altus.visualradio.R;
 public class CustomListViewAdapter extends BaseAdapter {//ArrayAdapter<ModelBase> {
     private LayoutInflater inflater;
     private ArrayList<ModelBase> models;
+    private ImageLoader imageLoader;
 
     public CustomListViewAdapter(Context context, ArrayList<ModelBase> contents) {
         this.models = contents;
         inflater = LayoutInflater.from(context);
+        imageLoader = new ImageLoader(context);
     }
 
     /**
@@ -54,6 +57,7 @@ public class CustomListViewAdapter extends BaseAdapter {//ArrayAdapter<ModelBase
         ImageView imageView;
         TextView titleText;
         TextView timeStamp;
+        RelativeLayout loader;
 
         // Music Specific
         TextView artistName;
@@ -72,7 +76,7 @@ public class CustomListViewAdapter extends BaseAdapter {//ArrayAdapter<ModelBase
     public View getView(int position, View convertView, ViewGroup parent) {
         ModelBase indexItem = (ModelBase) getItem(position);
         ViewHolder viewHolder;
-        ImageDownloader imageDownloader = new ImageDownloader();
+        //ImageDownloader imageDownloader = new ImageDownloader();
         Music music = null;
         Post post = null;
         int type = getItemViewType(position);
@@ -88,7 +92,6 @@ public class CustomListViewAdapter extends BaseAdapter {//ArrayAdapter<ModelBase
                 convertView = inflater.inflate(R.layout.main_index_list_post, parent, false);
                 viewHolder.content = (TextView) convertView.findViewById(R.id.text_post);
             }
-
             viewHolder.titleText = (TextView) convertView.findViewById(R.id.text_title);
             viewHolder.timeStamp = (TextView) convertView.findViewById(R.id.text_time_stamp);
 
@@ -106,11 +109,12 @@ public class CustomListViewAdapter extends BaseAdapter {//ArrayAdapter<ModelBase
         // Set Image data
         // Launches a downloader Async task, its given the Directory, ImageUrl, ImageName,
         // where the Image view is located and the current position in the list
-        imageDownloader.execute(indexItem.imageDir, indexItem.imageUrl, indexItem.imageName, viewHolder, position);
-        //viewHolder.type = "Music";
+        //imageDownloader.execute(indexItem.imageDir, indexItem.imageUrl, indexItem.imageName, viewHolder, position);
+
+        imageLoader.displayImage(indexItem.imageUrl, viewHolder.imageView, indexItem.imageName, indexItem.imageDir);
+
         viewHolder.titleText.setText(indexItem.title);
         viewHolder.timeStamp.setText(indexItem.publishOn);
-        //Log.w("ViewHolder Type: ", viewHolder.type);
 
         // TODO Set different types of content
         if (type == 0) {

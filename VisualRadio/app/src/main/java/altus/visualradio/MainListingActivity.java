@@ -36,17 +36,21 @@ public class MainListingActivity extends ListActivity implements LoaderManager.L
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if(savedInstanceState == null) {
-            Log.e("SavedBundleState", "Null");
-        }else if(savedInstanceState != null) {
-            Log.e("SavedBundleState", savedInstanceState.toString());
-        }
 
         initActivity();
 
         initFragment();
 
         getLoaderManager().initLoader(LOADER_ID, savedInstanceState, this);
+
+        if(savedInstanceState == null) {
+            Log.e("SavedBundleState", "Null");
+        }else if(savedInstanceState != null) {
+            Log.e("SavedBundleState", savedInstanceState.toString());
+
+            Log.e("StateOfListSTART", getListView().onSaveInstanceState().toString());
+            getListView().onRestoreInstanceState(savedInstanceState.getParcelable("LIST_STATE"));
+        }
     }
 
     protected void onStart() {
@@ -55,6 +59,14 @@ public class MainListingActivity extends ListActivity implements LoaderManager.L
 
     protected void onStop() {
         super.onStop();
+    }
+    protected void onPause() {
+        super.onPause();
+    }
+    public void onSaveInstanceState(Bundle outState) {
+        outState.putParcelable("LIST_STATE", getListView().onSaveInstanceState());
+        Log.e("StateOfList", getListView().onSaveInstanceState().toString());
+        super.onSaveInstanceState(outState);
     }
 
     @Override

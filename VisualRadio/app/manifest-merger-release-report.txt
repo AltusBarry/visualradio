@@ -57,6 +57,8 @@ activity#altus.visualradio.ListView.InflatedViewActivity
 ADDED from AndroidManifest.xml:23:9
 	android:label
 		ADDED from AndroidManifest.xml:25:12
+	android:parentActivityName
+		ADDED from AndroidManifest.xml:26:13
 	android:name
 		ADDED from AndroidManifest.xml:24:12
 uses-sdk

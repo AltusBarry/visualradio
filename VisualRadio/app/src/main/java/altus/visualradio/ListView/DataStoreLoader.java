@@ -38,7 +38,6 @@ import altus.visualradio.Utils.JSONFilesIO;
  *
  */
 public class DataStoreLoader extends AsyncTaskLoader<List<ModelBase>> {
-    private DataDownloader dl = new DataDownloader();
     private List<ModelBase> mContents;
     private ArrayList<ModelBase> usedContents;
     public String externalDir;
@@ -244,6 +243,7 @@ public class DataStoreLoader extends AsyncTaskLoader<List<ModelBase>> {
         @Override
         public void onOpen(ServerHandshake handshakedata) {
             Log.i("Websocket: ", "Handshake successfull");
+            Log.e("SENT TIME", String.valueOf(lastPublishOn));
             this.send("{\"msg_type\": \"subscribe\", \"channel\": \"visualradio\", \"last_seen\":" + String.valueOf(lastPublishOn) + "}");
         }
 
