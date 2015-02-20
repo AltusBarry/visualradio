@@ -1,3 +1,4 @@
+/*
 package altus.visualradio.UnusedClasses;
 
 import android.app.Activity;
@@ -23,6 +24,7 @@ import altus.visualradio.ListView.ModelBase;
 import altus.visualradio.Utils.JSONFilesIO;
 import altus.visualradio.Utils.UrlIO;
 
+*/
 /**
  * Created by altus on 2015/01/20.
  * @author  Altus Barry
@@ -34,7 +36,8 @@ import altus.visualradio.Utils.UrlIO;
  * as well as writing out list data to cached file
  *
  * Loader calls on new contents when it is alerted about data change.
- */
+ *//*
+
 public class DataDownloader {
     private ArrayList<ModelBase> contents = new ArrayList<>();
     private String externalDirectory;
@@ -185,3 +188,4 @@ public class DataDownloader {
 }
 
 
+*/

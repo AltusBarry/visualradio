@@ -25,7 +25,15 @@ public class ModelBase implements Serializable {
 
     public ModelBase(JSONObject jsonObject) throws JSONException {
         title = jsonObject.getJSONObject("card").getString("title");
-        imageUrl = jsonObject.getJSONObject("card").getString("image_url");
+
+        //TODO Add value for neither existing
+        if(jsonObject.getJSONObject("card").has("image_url")) {
+            imageUrl = jsonObject.getJSONObject("card").getString("image_url");
+        }else if(jsonObject.getJSONObject("card").has("thumbnail_url")) {
+            imageUrl = jsonObject.getJSONObject("card").getString("thumbnail_url");
+        }
+
+
         publishOn = getDate(Long.parseLong(jsonObject.getJSONObject("card").getString("publish_on")));
         type = jsonObject.getJSONObject("card").getString("content_type");
     }

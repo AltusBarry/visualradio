@@ -1,15 +1,21 @@
 package altus.visualradio.ListView;
 
 import android.app.Activity;
+import android.app.TaskStackBuilder;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.support.v4.app.NavUtils;
 import android.text.Html;
 import android.text.method.ScrollingMovementMethod;
+import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;;
 
+import altus.visualradio.MainListingActivity;
 import altus.visualradio.R;
 
 /**
@@ -23,6 +29,19 @@ public class InflatedViewActivity extends Activity {
         setContentView(R.layout.inflated_view_layout);
         getActionBar().setDisplayHomeAsUpEnabled(true);
         expandedTextFill();
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            // Respond to the action bar's Up/Home button
+
+            case android.R.id.home:
+                Log.d("HOME HIT", "TRUE");
+                NavUtils.navigateUpFromSameTask(this);
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     /**
@@ -45,6 +64,7 @@ public class InflatedViewActivity extends Activity {
 
 
         // TODO needs to access list Image cache and be able to call a download if the file does not exist
+        // TODO needs to place defaut image if none found
         Bitmap image = BitmapFactory.decodeFile(item.imageDir + "/" + item.imageName);
         ImageView imageView = (ImageView) findViewById(R.id.index_picture);
         imageView.setImageBitmap(image);

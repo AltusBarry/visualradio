@@ -75,6 +75,7 @@ public class ImageLoader {
     public Bitmap downLoadFile(ImageToLoad imageToLoad) throws IOException {
         // Downloads and saves images to external storage
 
+        // TODO Time out inputstream
         File downloadedFile = new File(directory, imageToLoad.name);
 
         if (!downloadedFile.exists()) {

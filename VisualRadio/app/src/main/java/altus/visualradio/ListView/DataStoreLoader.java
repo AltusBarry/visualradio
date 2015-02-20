@@ -59,7 +59,8 @@ public class DataStoreLoader extends AsyncTaskLoader<List<ModelBase>> {
     public DataStoreLoader(Context context) {
         super(context);
 
-        setExternalDir((context.getExternalFilesDir(null)).toString());
+        setExternalDir((getContext().getApplicationContext().getExternalFilesDir(null)).toString());
+
         lastPublishOn(checkCache());
         try {
             client = new FragmentSocket(new URI("ws://" + ECHIDNA_URL + ":8888/subscribe"), new Draft_10());
@@ -69,7 +70,7 @@ public class DataStoreLoader extends AsyncTaskLoader<List<ModelBase>> {
         // Initiate Socket connection
         connectThread.start();
 
-        Log.i("External File directory", (context.getExternalFilesDir(null)).toString());
+        Log.i("External File directory", externalDir.toString());
     }
 
     /**
@@ -78,7 +79,7 @@ public class DataStoreLoader extends AsyncTaskLoader<List<ModelBase>> {
      * @return
      */
     private int checkCache() {
-        File cachedFile = new File(externalDir, "feed.json");
+        File cachedFile = new File(externalDir+"/feed", "feed.json");
         JSONArray jArr = null;
         if(cachedFile.exists()) {
             try {
@@ -107,6 +108,20 @@ public class DataStoreLoader extends AsyncTaskLoader<List<ModelBase>> {
      */
     public void setExternalDir(String dir) {
         this.externalDir = dir;
+        File images = new File(externalDir + "/images");
+        if(!images.exists()) {
+            images.mkdir();
+            Log.i("dirMade", "images");
+        }
+        File feed = new File(externalDir + "/feed");
+        if(!feed.exists()) {
+            feed.mkdir();
+            Log.i("dirMade", "feed");
+        }
+    }
+
+    public String getExternalDir() {
+        return externalDir;
     }
 
     /**
@@ -278,8 +293,15 @@ public class DataStoreLoader extends AsyncTaskLoader<List<ModelBase>> {
     public void parseMessage(String message) {
         JSONArray arr = JSONFilesIO.parseToArray(message);
 
-        // TODO File is currently disabled completely
-        File cachedFile = new File(externalDir, "feed.json");
+        try {
+            if(!(arr.getJSONObject(0).getJSONObject("card").getString("content_type").equals("music") || arr.getJSONObject(0).getJSONObject("card").getString("content_type").equals("post"))) {
+                return;
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        File cachedFile = new File(externalDir+"/feed", "feed.json");
 
             JSONArray currentJSONArray = null;
             if(cachedFile.exists()) {
@@ -293,13 +315,22 @@ public class DataStoreLoader extends AsyncTaskLoader<List<ModelBase>> {
             }
 
             //Append read Array with the newest URL values
-            try {
-                currentJSONArray = new JSONArray((JSONFilesIO.concatArray(currentJSONArray, arr)).toString());
-            } catch (JSONException e) {
-                e.printStackTrace();
+        try {
+           // int cachedTime = Integer.parseInt((currentJSONArray.getJSONObject(0).getJSONObject("card").getString("publish_on")));
+           // int lastSentItem = Integer.parseInt((arr.getJSONObject(0).getJSONObject("card").getString("publish_on")));
+            if((currentJSONArray.length() == 0) || (Integer.parseInt((currentJSONArray.getJSONObject(0).getJSONObject("card").getString("publish_on"))) != Integer.parseInt((arr.getJSONObject(0).getJSONObject("card").getString("publish_on"))))) {
+                try {
+                    currentJSONArray = new JSONArray((JSONFilesIO.concatArray(currentJSONArray, arr)).toString());
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
             }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
 
-            // Write Array back out to cache
+
+        // Write Array back out to cache
             JSONFilesIO.writeArrayToFile(currentJSONArray, cachedFile);
 
         // Assign the values into the contents list
@@ -310,14 +341,21 @@ public class DataStoreLoader extends AsyncTaskLoader<List<ModelBase>> {
         try{
             for (int i = arr.length()-1; i >= 0; i--) {
                 obj = arr.getJSONObject(i);
-                // Log.d("DataStore/CONTENT TYPE: ", arr.getJSONObject(i).getJSONObject("card").getString("content_type"));
+
                 if (obj.getJSONObject("card").getString("content_type").equals("music")) {
                     mbObj = new Music(obj);
                 }else if (obj.getJSONObject("card").getString("content_type").equals("post")) {
                     mbObj = new Post(obj);
                 }
-                mbObj.imageDir = (externalDir);
-                mbObj.imageName = createUniqueName(obj.getJSONObject("card").getString("image_url"));
+
+
+                if(obj.getJSONObject("card").has("image_url")){
+                    mbObj.imageName = createUniqueName(obj.getJSONObject("card").getString("image_url"));
+                }  else if(obj.getJSONObject("card").has("thumbnail_url")) {
+                    mbObj.imageName = createUniqueName(obj.getJSONObject("card").getString("thumbnail_url"));
+                }
+
+                mbObj.imageDir = (getExternalDir()+"/images");
                 // Ensures content list does not exceed maximum amount
                 if((contents.size()+1) > 20) {
                     contents.remove(contents.size()-1);
@@ -327,6 +365,7 @@ public class DataStoreLoader extends AsyncTaskLoader<List<ModelBase>> {
             }
         } catch (JSONException e) {
             e.printStackTrace();
+            Log.e("Error Adding contents", e.toString());
         }
 
         setContent(contents);

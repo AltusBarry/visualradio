@@ -5,13 +5,19 @@ import android.app.ListActivity;
 import android.app.LoaderManager;
 import android.content.Intent;
 import android.content.Loader;
+import android.media.AudioManager;
+import android.media.MediaPlayer;
+import android.media.session.MediaController;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ListView;
+import android.widget.ToggleButton;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,14 +34,20 @@ import altus.visualradio.ListView.DataStoreLoader;
  * Inflates the layouts and passes the app context on to the loader and adapter
  */
 
-public class MainListingActivity extends ListActivity implements LoaderManager.LoaderCallbacks<List<ModelBase>>  {
+public class MainListingActivity extends ListActivity implements LoaderManager.LoaderCallbacks<List<ModelBase>> {
     // The loader's id as a final int, simply to ensure correct loader is always called and its id can be easily changed
     private static final int LOADER_ID = 0;
+    private static final String FRAGMENT_TAG = "data_handler";
+
     private CustomListViewAdapter listAdapter;
+    //private FragmentManager fm;
+    private DataHandler dataHandler;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getActionBar().setDisplayHomeAsUpEnabled(false);
 
         initActivity();
 
@@ -45,26 +57,26 @@ public class MainListingActivity extends ListActivity implements LoaderManager.L
 
         if(savedInstanceState == null) {
             Log.e("SavedBundleState", "Null");
-        }else if(savedInstanceState != null) {
+        }else {
             Log.e("SavedBundleState", savedInstanceState.toString());
 
             Log.e("StateOfListSTART", getListView().onSaveInstanceState().toString());
-            getListView().onRestoreInstanceState(savedInstanceState.getParcelable("LIST_STATE"));
+           // getListView().onRestoreInstanceState(savedInstanceState.getParcelable("LIST_STATE"));
         }
     }
 
     protected void onStart() {
         super.onStart();
     }
-
     protected void onStop() {
         super.onStop();
     }
     protected void onPause() {
         super.onPause();
     }
+
     public void onSaveInstanceState(Bundle outState) {
-        outState.putParcelable("LIST_STATE", getListView().onSaveInstanceState());
+        //outState.putParcelable("LIST_STATE", getListView().onSaveInstanceState());
         Log.e("StateOfList", getListView().onSaveInstanceState().toString());
         super.onSaveInstanceState(outState);
     }
@@ -131,22 +143,20 @@ public class MainListingActivity extends ListActivity implements LoaderManager.L
         listAdapter = new CustomListViewAdapter(this, new ArrayList<ModelBase>());
         // Main Activity needs to extend the ListActivity
         setListAdapter(listAdapter);
-        Log.i("MainActivity.initActivity", " Layout Inflated;");
+        Log.i("MainActivity.initActivity", " Inflated");
     }
 
-    private static final String FRAGMENT_TAG = ".DataHandler";
-    FragmentManager fm;
-    DataHandler dataHandler;
+
 
     private void initFragment() {
-        fm = getFragmentManager();
+        FragmentManager fm = getFragmentManager();
         dataHandler = (DataHandler) fm.findFragmentByTag(FRAGMENT_TAG);
 
         if(dataHandler == null) {
             dataHandler = new DataHandler();
-            fm.beginTransaction().add(dataHandler,FRAGMENT_TAG).commit();
+            fm.beginTransaction().add(dataHandler, FRAGMENT_TAG).commit();
         }
-        listAdapter.setData(dataHandler.getContents());
+        //listAdapter.setData(dataHandler.getContents());
     }
 
     @Override
@@ -163,6 +173,27 @@ public class MainListingActivity extends ListActivity implements LoaderManager.L
     @Override
     public void onLoaderReset(Loader<List<ModelBase>> loader) {
 
+    }
+
+    public void startStream(View view){
+        dataHandler.play();
+        //mediaPlayer.start();
+    }
+
+    public void pauseStream(View view) {
+        dataHandler.pause();
+        //mediaPlayer.pause();
+    }
+
+    public void playPause(View view) {
+        // Is the toggle on?
+        boolean on = ((ToggleButton) view).isChecked();
+
+        if (on) {
+            dataHandler.play();
+        } else {
+            dataHandler.pause();
+        }
     }
 }
 

@@ -89,8 +89,8 @@ public class CustomListViewAdapter extends BaseAdapter {//ArrayAdapter<ModelBase
                 convertView = inflater.inflate(R.layout.main_index_list_music, parent, false);
                 viewHolder.artistName = (TextView) convertView.findViewById(R.id.text_artist_name);
             } else {
-                convertView = inflater.inflate(R.layout.main_index_list_post, parent, false);
-                viewHolder.content = (TextView) convertView.findViewById(R.id.text_post);
+                convertView = inflater.inflate(R.layout.main_index_list_post, parent, false);/*
+                viewHolder.content = (TextView) convertView.findViewById(R.id.text_post);*/
             }
             viewHolder.titleText = (TextView) convertView.findViewById(R.id.text_title);
             viewHolder.timeStamp = (TextView) convertView.findViewById(R.id.text_time_stamp);
@@ -120,10 +120,10 @@ public class CustomListViewAdapter extends BaseAdapter {//ArrayAdapter<ModelBase
         if (type == 0) {
             music = (Music) getItem(position);
             viewHolder.artistName.setText(music.artist);
-        } else {
+        }/* else {
             post = (Post) getItem(position);
             viewHolder.content.setText(post.content);
-        }
+        }*/
 
         return convertView;
     }

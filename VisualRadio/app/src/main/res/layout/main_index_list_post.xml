@@ -6,6 +6,7 @@
     android:orientation="horizontal"
     android:baselineAligned="false"
     android:background="#ffffff">
+
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -18,19 +19,6 @@
         android:id="@+id/text_title"
         android:layout_toLeftOf="@+id/index_picture"/>
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingLeft="10dp"
-        android:text="Body Text Here"
-        android:layout_marginTop="0dp"
-        android:ellipsize="end"
-        android:lines="1"
-        android:textColor="#ff000000"
-        android:textSize="14sp"
-        android:id="@+id/text_post"
-        android:layout_below="@id/text_title"
-        android:layout_toLeftOf="@+id/index_picture"/>
 
     <ImageView
         android:layout_width="30dp"
