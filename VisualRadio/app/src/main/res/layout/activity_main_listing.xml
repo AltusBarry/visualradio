@@ -7,56 +7,40 @@
     android:background="#eeeeee">
     tools:context=".MainListingActivity">
 
-    <!--Needs Id for List View To be Populated with custom list view layout-->
-
-    <!--<Button
-        android:layout_width="100dp"
-        android:layout_height="wrap_content"
-        android:text="Play"
-        android:id="@+id/play_button"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentStart="true"
-
-        android:weightSum="1"
-        android:onClick="startStream"/>
-
-    <Button
-        android:layout_width="100dp"
-        android:layout_height="wrap_content"
-        android:text="Pause"
-        android:id="@+id/pause_button"
-
-        android:weightSum="1"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:onClick="pauseStream"/>-->
-
-    <ToggleButton
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:text="New ToggleButton"
-        android:id="@+id/toggleButton"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:onClick="playPause"
-
-        style="@style/toggleButton"
-        android:background="@drawable/ic_toggle_bg"/>
-
-
 
     <ListView
         android:id="@android:id/list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:dividerHeight="15.0dp"
-
-        android:layout_below="@id/toggleButton"
-
         android:layout_marginLeft="10dp"
         android:layout_marginRight="10dp"
+        android:layout_marginBottom="10dp"
+        android:layout_above="@+id/player_area"
         android:background="#eeeeee">
         </ListView>
+
+    <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="50dp"
+        android:layout_alignParentBottom="true"
+        android:background="#f8f8f8"
+        android:id="@+id/player_area">
+
+        <ToggleButton
+            android:layout_width="45dp"
+            android:layout_height="45dp"
+            android:layout_marginLeft="20dp"
+            android:id="@+id/toggleButton"
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"
+            android:onClick="playPause"
+
+            style="@style/toggleButton"
+            android:background="@drawable/ic_toggle_bg"/>
+
+    </RelativeLayout>
+
 
 
 

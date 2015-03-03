@@ -39,7 +39,7 @@
         android:layout_alignParentBottom="true"
         android:layout_marginBottom="5dp"
         android:layout_marginLeft="5dp"
-        android:src="@drawable/ic_launcher"
+        android:src="@drawable/music"
         android:id="@+id/type_pic"
         >
     </ImageView>
@@ -53,7 +53,10 @@
         android:textStyle="italic"
         android:id="@+id/text_time_stamp"
         android:layout_alignBottom="@+id/type_pic"
-        android:layout_toEndOf="@+id/type_pic" />
+        android:layout_marginLeft="10dp"
+        android:layout_toEndOf="@+id/type_pic"
+        android:layout_toRightOf="@+id/type_pic"
+        android:layout_toLeftOf="@+id/index_picture"/>
 
     <ImageView
         android:layout_width="150dp"
@@ -61,7 +64,6 @@
         android:layout_gravity="right"
         android:layout_alignParentRight="true"
         android:weightSum="1"
-        android:src="@drawable/ic_launcher"
         android:id="@+id/index_picture">
     </ImageView>
 

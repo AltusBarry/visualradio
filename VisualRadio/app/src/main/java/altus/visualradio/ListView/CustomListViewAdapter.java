@@ -1,7 +1,6 @@
 package altus.visualradio.ListView;
 
 import android.content.Context;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -89,7 +88,7 @@ public class CustomListViewAdapter extends BaseAdapter {//ArrayAdapter<ModelBase
                 convertView = inflater.inflate(R.layout.main_index_list_music, parent, false);
                 viewHolder.artistName = (TextView) convertView.findViewById(R.id.text_artist_name);
             } else {
-                convertView = inflater.inflate(R.layout.main_index_list_post, parent, false);/*
+                convertView = inflater.inflate(R.layout.main_index_list_news, parent, false);/*
                 viewHolder.content = (TextView) convertView.findViewById(R.id.text_post);*/
             }
             viewHolder.titleText = (TextView) convertView.findViewById(R.id.text_title);
@@ -120,10 +119,10 @@ public class CustomListViewAdapter extends BaseAdapter {//ArrayAdapter<ModelBase
         if (type == 0) {
             music = (Music) getItem(position);
             viewHolder.artistName.setText(music.artist);
-        }/* else {
-            post = (Post) getItem(position);
-            viewHolder.content.setText(post.content);
-        }*/
+        } else {
+           viewHolder.imageView.setScaleType(ImageView.ScaleType.FIT_XY);
+            viewHolder.imageView.setAlpha((float) 0.5);
+        }
 
         return convertView;
     }
