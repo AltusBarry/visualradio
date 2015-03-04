@@ -2,28 +2,12 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:paddingTop="@dimen/activity_vertical_margin"
+    android:layout_height="wrap_content"
     android:background="#eeeeee">
-    tools:context=".MainListingActivity">
-
-
-    <ListView
-        android:id="@android:id/list"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:dividerHeight="15.0dp"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
-        android:layout_marginBottom="10dp"
-        android:layout_above="@+id/player_area"
-        android:background="#eeeeee">
-        </ListView>
 
     <RelativeLayout
         android:layout_width="fill_parent"
         android:layout_height="50dp"
-        android:layout_alignParentBottom="true"
         android:background="#f8f8f8"
         android:id="@+id/player_area">
 
@@ -37,7 +21,9 @@
             android:onClick="playPause"
 
             style="@style/toggleButton"
-            android:background="@drawable/ic_toggle_bg"/>
+            android:background="@drawable/ic_toggle_bg"
+            />
+
 
     </RelativeLayout>
 

@@ -1,0 +1,40 @@
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    android:background="#eeeeee">
+    tools:context=".MainListingActivity">
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentTop="true"
+        android:background="#eeeeee"
+        android:id="@+id/list_fragment"
+        android:layout_above="@+id/player_fragment">
+
+        </FrameLayout>
+ <!--   <fragment
+        android:name="altus.visualradio.ListView.ListViewFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentTop="true"
+        android:background="#eeeeee"
+        android:id="@+id/list_fragment"
+        tools:layout="@layout/list_fragment"
+        android:layout_above="@+id/player_fragment">
+    </fragment>-->
+
+    <fragment
+        android:id="@+id/player_fragment"
+        android:name="altus.visualradio.PlayerFragment"
+        android:layout_width="fill_parent"
+        android:layout_height="50dp"
+        android:layout_alignParentBottom="true"
+        android:background="#f8f8f8"
+        tools:layout="@layout/player_fragment">
+    </fragment>
+
+</RelativeLayout>

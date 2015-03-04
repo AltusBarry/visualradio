@@ -1,3 +1,4 @@
+/*
 package altus.visualradio.ListView;
 
 import android.app.Activity;
@@ -18,10 +19,12 @@ import android.widget.TextView;;
 import altus.visualradio.MainListingActivity;
 import altus.visualradio.R;
 
+*/
 /**
  * Created by altus on 2015/01/12.
  * Handles the layout for the inflated views
- */
+ *//*
+
 public class InflatedViewActivity extends Activity {
 
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,9 +47,11 @@ public class InflatedViewActivity extends Activity {
         return super.onOptionsItemSelected(item);
     }
 
-    /**
+    */
+/**
      * Receives the selected position ModelBase object and uses the data as needed
-     */
+     *//*
+
     private void expandedTextFill() {
         ModelBase item = (ModelBase) getIntent().getSerializableExtra("itemData");
         TextView headerText = (TextView) findViewById(R.id.text_title);
@@ -71,3 +76,4 @@ public class InflatedViewActivity extends Activity {
     }
 
 }
+*/

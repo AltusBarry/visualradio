@@ -8,8 +8,6 @@ import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-import altus.visualradio.MainListingActivity;
-
 /**
  * Created by altus on 2015/02/02.
  * Util class for the download of the server data

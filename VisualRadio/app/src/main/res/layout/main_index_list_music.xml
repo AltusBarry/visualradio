@@ -10,12 +10,15 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+
         android:paddingLeft="10dp"
         android:paddingTop="10dp"
+
         android:text="@string/title_default_text"
         android:textSize="19sp"
         android:textColor="#ff000000"
         android:textStyle="bold"
+
         android:id="@+id/text_title"
         android:layout_toLeftOf="@+id/index_picture"/>
 
@@ -47,11 +50,14 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+
         android:text="7 January 2015"
         android:textColor="#c6c6c6"
         android:textSize="12sp"
         android:textStyle="italic"
+
         android:id="@+id/text_time_stamp"
+
         android:layout_alignBottom="@+id/type_pic"
         android:layout_marginLeft="10dp"
         android:layout_toEndOf="@+id/type_pic"

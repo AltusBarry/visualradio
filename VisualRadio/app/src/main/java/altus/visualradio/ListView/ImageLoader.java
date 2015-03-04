@@ -51,7 +51,7 @@ public class ImageLoader {
             view.setImageBitmap(bitmap);
         } else {
             queueImages(url, view, name);
-            view.setImageResource(R.drawable.roundedcorners);
+           // view.setImageResource(R.drawable.roundedcorners);
         }
     }
 
