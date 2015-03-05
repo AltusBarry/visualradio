@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="50dp"
+    android:layout_marginBottom="5dp"
+    android:background="#ffffff"
+    >
+
+        <ImageView
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="16dp"
+
+            android:id="@+id/weather_pic"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="50dp"
+
+            android:paddingLeft="10dp"
+
+            android:text="@string/title_default_text"
+            android:textSize="19sp"
+            android:textColor="#ff000000"
+            android:textStyle="bold"
+
+            android:id="@+id/city_name"
+            android:layout_toRightOf="@+id/weather_pic"
+            android:layout_centerVertical="true"
+            android:gravity="center" />
+
+        <TextView
+            android:layout_width="75dp"
+            android:layout_height="fill_parent"
+
+            android:paddingLeft="10dp"
+
+            android:text="000'C"
+            android:textSize="19sp"
+            android:textColor="#ff000000"
+            android:textStyle="bold"
+
+            android:id="@+id/high_temp"
+            android:layout_toLeftOf="@+id/low_temp"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="16dp"
+            android:gravity="center" />
+
+        <TextView
+            android:layout_width="50dp"
+            android:layout_height="fill_parent"
+
+            android:paddingLeft="10dp"
+
+            android:text="000'C"
+            android:textSize="12sp"
+            android:textColor="#8d8d8d"
+
+            android:id="@+id/low_temp"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:gravity="center" />
+
+    <View
+        android:layout_width="fill_parent"
+        android:layout_height="1dp"
+        android:background="@android:color/darker_gray"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:layout_alignParentBottom="true"/>
+
+</RelativeLayout>

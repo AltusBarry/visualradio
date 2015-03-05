@@ -3,7 +3,6 @@ package altus.visualradio.ListView;
 import android.app.Activity;
 import android.app.ListFragment;
 import android.app.LoaderManager;
-import android.content.Intent;
 import android.content.Loader;
 import android.os.Bundle;
 import android.util.Log;
@@ -58,7 +57,7 @@ public class ListViewFragment extends ListFragment implements LoaderManager.Load
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState){
         //Inflate the layout
         Log.i("List View:", " Inflating");
-        return inflater.inflate(R.layout.list_fragment, container, false);
+        return inflater.inflate(R.layout.fragment_list, container, false);
     }
 
     public void onCreate(Bundle savedInstanceState) {

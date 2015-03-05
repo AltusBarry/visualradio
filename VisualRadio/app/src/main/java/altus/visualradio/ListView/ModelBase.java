@@ -2,6 +2,7 @@ package altus.visualradio.ListView;
 
 import android.text.format.DateFormat;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -65,6 +66,26 @@ class Post extends ModelBase {
         super(jsonObject);
 
         content = jsonObject.getJSONObject("card").getString("content");
+    }
+}
+
+class Weather extends ModelBase {
+    public JSONArray cities;
+
+    public Weather(JSONObject jsonObject) throws JSONException {
+        super(jsonObject);
+
+        cities = jsonObject.getJSONObject("card").getJSONArray("cities");
+    }
+}
+
+class Traffic extends ModelBase {
+
+    private JSONArray traffic;
+    public Traffic(JSONObject jsonObject) throws JSONException {
+        super(jsonObject);
+
+        traffic = jsonObject.getJSONObject("card").getJSONArray("incidents");
     }
 }
 

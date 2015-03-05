@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="75dp"
+    android:layout_marginBottom="5dp"
+    android:background="#ffffff"
+    >
+
+    <ImageView
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_alignParentLeft="true"
+        android:layout_centerVertical="true"
+
+        android:layout_marginLeft="16dp"
+
+        android:id="@+id/traffic_pic"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+
+        android:paddingLeft="10dp"
+
+        android:text="@string/title_default_text"
+        android:textSize="19sp"
+        android:textColor="#ff000000"
+        android:textStyle="bold"
+
+        android:id="@+id/traffic_type"
+        android:layout_toRightOf="@+id/traffic_pic"
+        android:layout_centerVertical="true"
+        android:gravity="center"
+        android:layout_alignParentTop="true"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="fill_parent"
+
+        android:paddingLeft="10dp"
+
+        android:text="Default Traffic Situation"
+        android:textSize="19sp"
+        android:textColor="#8d8d8d"
+        android:textStyle="bold"
+
+        android:id="@+id/high_temp"
+        android:layout_below= "@+id/traffic_type"
+        android:layout_toRightOf="@+id/traffic_pic"
+        android:layout_centerVertical="true"
+        android:layout_marginRight="16dp"
+        android:gravity="center" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+
+        android:paddingLeft="10dp"
+
+        android:text="24h"
+        android:textSize="12sp"
+        android:textColor="#8d8d8d"
+
+        android:id="@+id/time_ago"
+        android:layout_toRightOf="@+id/traffic_type"
+        android:gravity="center" />
+
+    <View
+        android:layout_width="fill_parent"
+        android:layout_height="1dp"
+        android:background="@android:color/darker_gray"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:layout_alignParentBottom="true"/>
+
+</RelativeLayout>

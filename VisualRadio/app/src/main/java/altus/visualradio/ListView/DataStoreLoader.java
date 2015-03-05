@@ -294,7 +294,10 @@ public class DataStoreLoader extends AsyncTaskLoader<List<ModelBase>> {
         JSONArray arr = JSONFilesIO.parseToArray(message);
 
         try {
-            if(!(arr.getJSONObject(0).getJSONObject("card").getString("content_type").equals("music") || arr.getJSONObject(0).getJSONObject("card").getString("content_type").equals("post"))) {
+            if(!(arr.getJSONObject(0).getJSONObject("card").getString("content_type").equals("music") ||
+                    arr.getJSONObject(0).getJSONObject("card").getString("content_type").equals("post") ||
+                    arr.getJSONObject(0).getJSONObject("card").getString("content_type").equals("weather") ||
+                    arr.getJSONObject(0).getJSONObject("card").getString("content_type").equals("weather"))){
                 return;
             }
         } catch (JSONException e) {
@@ -346,6 +349,10 @@ public class DataStoreLoader extends AsyncTaskLoader<List<ModelBase>> {
                     mbObj = new Music(obj);
                 }else if (obj.getJSONObject("card").getString("content_type").equals("post")) {
                     mbObj = new Post(obj);
+                } else if (obj.getJSONObject("card").getString("content_type").equals("weather")) {
+                    mbObj = new Weather(obj);
+                } else if (obj.getJSONObject("card").getString("content_type").equals("traffic")) {
+                    mbObj = new Traffic(obj);
                 }
 
 

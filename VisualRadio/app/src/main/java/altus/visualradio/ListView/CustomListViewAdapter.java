@@ -22,11 +22,13 @@ public class CustomListViewAdapter extends BaseAdapter {//ArrayAdapter<ModelBase
     private LayoutInflater inflater;
     private ArrayList<ModelBase> models;
     private ImageLoader imageLoader;
+    private MultiPostRow rowPost;
 
     public CustomListViewAdapter(Context context, ArrayList<ModelBase> contents) {
         this.models = contents;
         inflater = LayoutInflater.from(context);
         imageLoader = new ImageLoader(context);
+        rowPost = new MultiPostRow(context);
     }
 
     /**
@@ -62,7 +64,7 @@ public class CustomListViewAdapter extends BaseAdapter {//ArrayAdapter<ModelBase
         TextView artistName;
 
         // Posts Specific
-        TextView content;
+        RelativeLayout layout;
     }
 
     /**
@@ -83,22 +85,32 @@ public class CustomListViewAdapter extends BaseAdapter {//ArrayAdapter<ModelBase
         if (convertView == null) {
             viewHolder = new ViewHolder();
 
-            if (type == 0) {
-                        // Inflate the layout with image
-                convertView = inflater.inflate(R.layout.main_index_list_music, parent, false);
-                viewHolder.artistName = (TextView) convertView.findViewById(R.id.text_artist_name);
-            } else {
-                convertView = inflater.inflate(R.layout.main_index_list_news, parent, false);/*
-                viewHolder.content = (TextView) convertView.findViewById(R.id.text_post);*/
+            switch (type) {
+                case 0:
+                    // Inflate the layout with image
+                    convertView = inflater.inflate(R.layout.main_index_list_music, parent, false);
+                    viewHolder.artistName = (TextView) convertView.findViewById(R.id.text_artist_name);
+                    break;
+                case 1:
+                    convertView = inflater.inflate(R.layout.main_index_list_news, parent, false);
+                    break;
+                case 2:
+                    convertView = inflater.inflate(R.layout.main_index_list_weather, parent, false);
+                    viewHolder.layout = (RelativeLayout) convertView.findViewById(R.id.weather_area);
+                    break;
             }
-            viewHolder.titleText = (TextView) convertView.findViewById(R.id.text_title);
-            viewHolder.timeStamp = (TextView) convertView.findViewById(R.id.text_time_stamp);
 
-            // Assign image view into a ViewHolder class, which is then updated when the Async task
-            // has finished downloading the images
-            viewHolder.imageView = (ImageView) convertView.findViewById(R.id.index_picture);
-            viewHolder.imageView.setImageBitmap(null);
-            viewHolder.position = position;
+            if((type == 0) || (type == 1)) {
+                viewHolder.titleText = (TextView) convertView.findViewById(R.id.text_title);
+
+
+                // Assign image view into a ViewHolder class, which is then updated when the Async task
+                // has finished downloading the images
+                viewHolder.imageView = (ImageView) convertView.findViewById(R.id.index_picture);
+                viewHolder.imageView.setImageBitmap(null);
+                viewHolder.position = position;
+            }
+            viewHolder.timeStamp = (TextView) convertView.findViewById(R.id.text_time_stamp);
 
             convertView.setTag(viewHolder);
         } else {
@@ -109,19 +121,24 @@ public class CustomListViewAdapter extends BaseAdapter {//ArrayAdapter<ModelBase
         // Launches a downloader Async task, its given the Directory, ImageUrl, ImageName,
         // where the Image view is located and the current position in the list
         //imageDownloader.execute(indexItem.imageDir, indexItem.imageUrl, indexItem.imageName, viewHolder, position);
-
-        imageLoader.displayImage(indexItem.imageUrl, viewHolder.imageView, indexItem.imageName, indexItem.imageDir);
-
-        viewHolder.titleText.setText(indexItem.title);
+        if((type == 0) || (type == 1)) {
+            imageLoader.displayImage(indexItem.imageUrl, viewHolder.imageView, indexItem.imageName, indexItem.imageDir);
+            viewHolder.titleText.setText(indexItem.title);
+        }
         viewHolder.timeStamp.setText(indexItem.publishOn);
+
+
 
         // TODO Set different types of content
         if (type == 0) {
             music = (Music) getItem(position);
             viewHolder.artistName.setText(music.artist);
-        } else {
+        } else if (type ==1){
            viewHolder.imageView.setScaleType(ImageView.ScaleType.FIT_XY);
-            viewHolder.imageView.setAlpha((float) 0.5);
+           viewHolder.imageView.setAlpha((float) 0.5);
+        } else if( type == 2) {
+            ModelBase mb = (ModelBase) getItem(position);
+            rowPost.inflateRow(mb, viewHolder.layout);
         }
 
         return convertView;
@@ -140,13 +157,22 @@ public class CustomListViewAdapter extends BaseAdapter {//ArrayAdapter<ModelBase
     }
 
     public int getViewTypeCount() {
-        return 2;
+        return 3;
     }
 
     private static int TYPE_MUSIC = 0;
     private static int TYPE_POST = 1;
+    private static int TYPE_WEATHER = 2;
     public int getItemViewType(int position) {
-        return (models.get(position).type.equals("music")) ? TYPE_MUSIC : TYPE_POST;
+
+        if (models.get(position).type.equals("music")) {
+            return TYPE_MUSIC;
+        } else if (models.get(position).type.equals("post")) {
+            return TYPE_POST;
+        } else if (models.get(position).type.equals("weather")) {
+            return TYPE_WEATHER;
+        }
+        return 0;
     }
 
 }

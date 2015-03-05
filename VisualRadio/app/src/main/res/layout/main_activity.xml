@@ -22,9 +22,9 @@
         android:layout_height="match_parent"
         android:layout_alignParentTop="true"
         android:background="#eeeeee"
-        android:id="@+id/list_fragment"
-        tools:layout="@layout/list_fragment"
-        android:layout_above="@+id/player_fragment">
+        android:id="@+id/fragment_list"
+        tools:layout="@layout/fragment_list"
+        android:layout_above="@+id/fragment_player">
     </fragment>-->
 
     <fragment
@@ -34,7 +34,7 @@
         android:layout_height="50dp"
         android:layout_alignParentBottom="true"
         android:background="#f8f8f8"
-        tools:layout="@layout/player_fragment">
+        tools:layout="@layout/fragment_player">
     </fragment>
 
 </RelativeLayout>

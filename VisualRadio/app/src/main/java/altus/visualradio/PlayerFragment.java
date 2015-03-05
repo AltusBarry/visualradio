@@ -1,17 +1,14 @@
 package altus.visualradio;
 
-import android.annotation.TargetApi;
 import android.app.Fragment;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ToggleButton;
 
 import java.io.IOException;
 
@@ -31,7 +28,7 @@ public class PlayerFragment extends Fragment implements MediaPlayer.OnPreparedLi
     }
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState){
-        return inflater.inflate(R.layout.player_fragment, container, false);
+        return inflater.inflate(R.layout.fragment_player, container, false);
     }
 
     /**

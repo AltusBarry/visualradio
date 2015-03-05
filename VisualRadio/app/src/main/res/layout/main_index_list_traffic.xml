@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:baselineAligned="false"
+    android:background="#ffffff">
+
+    <TextView
+        android:id="@+id/title"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:text="Traffic"
+        android:textColor="#8d8d8d"
+        android:textSize="19sp"
+        android:paddingLeft="10dp"
+        android:paddingTop="10dp">
+
+    </TextView>
+
+    <RelativeLayout
+        android:id="@+id/traffic_area"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/title">
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/type_bar"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:orientation="vertical"
+        android:layout_below="@+id/traffic_area">
+
+        <ImageView
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="5dp"
+            android:layout_marginLeft="5dp"
+            android:src="@drawable/traffic"
+            android:id="@+id/type_pic"
+            >
+        </ImageView>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+
+            android:text="7 January 2015"
+            android:textColor="#c6c6c6"
+            android:textSize="12sp"
+            android:textStyle="italic"
+
+            android:id="@+id/text_time_stamp"
+
+            android:layout_alignBottom="@+id/type_pic"
+            android:layout_marginLeft="10dp"
+            android:layout_toEndOf="@+id/type_pic"
+            android:layout_toRightOf="@+id/type_pic"
+            android:layout_toLeftOf="@+id/index_picture"/>
+    </RelativeLayout>
+
+
+
+</RelativeLayout>

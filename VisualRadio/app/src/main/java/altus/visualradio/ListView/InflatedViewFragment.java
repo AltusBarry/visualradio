@@ -27,7 +27,7 @@ public class InflatedViewFragment extends Fragment {
     }
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState){
-        return inflater.inflate(R.layout.inflated_fragment, container, false);
+        return inflater.inflate(R.layout.fragment_inflated, container, false);
     }
 
     public void onStart() {

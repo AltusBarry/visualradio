@@ -159,19 +159,19 @@ public class MainActivity extends Activity implements ListViewFragment.listCallb
         if(findViewById(R.id.list_fragment) != null) {
             if(listFragment == null) {
                 listFragment = new ListViewFragment();
-                manager.beginTransaction().replace(R.id.list_fragment, listFragment, "list_fragment").commit();
+                manager.beginTransaction().replace(R.id.list_fragment, listFragment, "fragment_list").commit();
             }
 
         }
 
         // Fragment that handles the inflated/detailed view
-        inflatedView = (InflatedViewFragment) manager.findFragmentByTag("inflated_fragment");
+        inflatedView = (InflatedViewFragment) manager.findFragmentByTag("fragment_inflated");
 
         //TODO no landscape layouts created
       /*  if((findViewById(R.id.landscape_activity) != null)) {
             if(inflatedView == null) {
                 inflatedView = new InflatedViewFragment();
-                manager.beginTransaction().replace(R.id.inflated_fragment, inflatedView, "inflated_fragment").commit();
+                manager.beginTransaction().replace(R.id.fragment_inflated, inflatedView, "fragment_inflated").commit();
             }
         }*/
 
@@ -181,7 +181,7 @@ public class MainActivity extends Activity implements ListViewFragment.listCallb
         if (findViewById(R.id.player_fragment) != null) {
             if (player == null) {
                 player = new PlayerFragment();
-                manager.beginTransaction().replace(R.id.player_fragment, player, "player_fragment").commit();
+                manager.beginTransaction().replace(R.id.player_fragment, player, "fragment_player").commit();
             }
         }
     }
@@ -196,7 +196,7 @@ public class MainActivity extends Activity implements ListViewFragment.listCallb
         if (findViewById(R.id.player_fragment) != null) {
             if (player == null) {
                 player = new PlayerFragment();
-                manager.beginTransaction().replace(R.id.player_fragment, player, "player_fragment").commit();
+                manager.beginTransaction().replace(R.id.player_fragment, player, "fragment_player").commit();
             }
         }
 
@@ -221,9 +221,9 @@ public class MainActivity extends Activity implements ListViewFragment.listCallb
         //if((findViewById(R.id.landscape_activity) == null)) {
         if (inflatedView == null) {
             inflatedView = new InflatedViewFragment();
-            manager.beginTransaction().replace(R.id.list_fragment, inflatedView, "inflated_fragment").addToBackStack(null).commit();
+            manager.beginTransaction().replace(R.id.list_fragment, inflatedView, "fragment_inflated").addToBackStack(null).commit();
         }else {
-            manager.beginTransaction().replace(R.id.list_fragment, inflatedView, "inflated_fragment").addToBackStack(null).commit();
+            manager.beginTransaction().replace(R.id.list_fragment, inflatedView, "fragment_inflated").addToBackStack(null).commit();
         }
        // }
         inflatedState = true;
@@ -234,6 +234,10 @@ public class MainActivity extends Activity implements ListViewFragment.listCallb
     private Bundle position = new Bundle();
     public void setPosition(Bundle bundle) {
         position = bundle;
+    }
+
+    private void listPosition() {
+
     }
 }
 
