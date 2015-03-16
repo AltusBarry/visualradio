@@ -12,8 +12,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.ArrayList;
-
 import altus.visualradio.R;
 
 /**
@@ -72,7 +70,7 @@ public class InflatedListAdapter extends BaseAdapter {
 
         try {
             viewHolder.incidentType.setText(indexItem.getString("type"));
-            //viewHolder.timeAgo.setText();
+            viewHolder.timeAgo.setText(indexItem.getString("counter"));
             viewHolder.description.setText(indexItem.getString("description"));
         } catch (JSONException e) {
 
@@ -80,6 +78,7 @@ public class InflatedListAdapter extends BaseAdapter {
         final String obstruction = "Obstruction";
         final String congestion = "Congestion";
         final String roadworks = "Roadworks";
+        final String trafficLights ="Traffic Lights";
 
         String incidentType = null;
         try {
@@ -97,6 +96,9 @@ public class InflatedListAdapter extends BaseAdapter {
                     break;
                 case roadworks:
                     viewHolder.typePic.setImageResource(R.drawable.traffic_road_closure);
+                    break;
+                case trafficLights:
+                    viewHolder.typePic.setImageResource(R.drawable.traffic_robots_out);
                     break;
                 default:
                     viewHolder.typePic.setImageResource(R.drawable.traffic_delays);

@@ -8,8 +8,6 @@ import android.util.Log;
 import java.io.File;
 import java.util.Date;
 
-import altus.visualradio.ListView.ModelBase;
-
 /**
  * Created by altus on 2015/02/13.
  * Headless Fragment to delete old files
@@ -62,7 +60,8 @@ public class DataHandler extends Fragment {
                 current.getTime();
                 iterate(directory, current.getTime());
                 try {
-                    Thread.sleep(36000000);
+                    Thread.sleep(3600000);
+
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -73,7 +72,8 @@ public class DataHandler extends Fragment {
             if (dir.exists()) {
                 File[] files = dir.listFiles();
                 for (int i = 0; i < files.length; ++i) {
-                    if(files[i].lastModified() < (current-36000000)) {
+                    Log.d("File time", String.valueOf(files[i].lastModified()));
+                    if(files[i].lastModified() < (current-3600000)) {
                         Log.i("File to Delete", files[i].getName());
                         files[i].delete();
                         Log.i("File Delted", "index Number" + i);

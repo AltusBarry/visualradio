@@ -4,10 +4,8 @@ import android.content.AsyncTaskLoader;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.text.format.DateFormat;
 import android.util.Log;
 
 import org.java_websocket.client.WebSocketClient;
@@ -24,10 +22,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.Calendar;
 import java.util.List;
 import java.util.ArrayList;
-import java.util.Locale;
 
 import altus.visualradio.Utils.Constants;
 import altus.visualradio.Utils.JSONFilesIO;

@@ -4,9 +4,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.util.Log;
-import android.view.View;
 import android.widget.ImageView;
-import android.widget.RelativeLayout;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -51,7 +49,6 @@ public class ImageLoader {
             view.setImageBitmap(bitmap);
         } else {
             queueImages(url, view, name);
-           // view.setImageResource(R.drawable.roundedcorners);
         }
     }
 

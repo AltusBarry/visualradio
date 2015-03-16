@@ -158,7 +158,7 @@ public class ListViewFragment extends ListFragment implements LoaderManager.Load
     }
 
     /**
-     * Lsit position is updated if the boolean is true
+     * List position is updated if the boolean flag is true
      * @param position
      */
     public void updatePosition(Parcelable position) {
