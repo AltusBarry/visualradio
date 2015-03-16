@@ -2,8 +2,6 @@ package altus.visualradio;
 
 import android.app.Activity;
 import android.app.FragmentManager;
-import android.app.ListActivity;
-import android.app.ListFragment;
 
 import android.os.Bundle;
 
@@ -14,9 +12,12 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ToggleButton;
 
-import altus.visualradio.ListView.InflatedViewFragment;
+import altus.visualradio.ListView.InflatedListFragment;
+import altus.visualradio.ListView.InflatedMusicFragment;
+import altus.visualradio.ListView.InflatedNewsFragment;
 import altus.visualradio.ListView.ListViewFragment;
 import altus.visualradio.ListView.ModelBase;
+import altus.visualradio.Utils.Constants;
 
 /**
  * @author Altus Barry
@@ -26,49 +27,68 @@ import altus.visualradio.ListView.ModelBase;
  * Inflates the layouts and handles fragments
  */
 
-public class MainActivity extends Activity implements ListViewFragment.listCallbacks{
+public class MainActivity extends Activity implements ListViewFragment.listCallbacks,
+        DataHandler.handlerCallbacks, InflatedListFragment.fragmentCallback, InflatedMusicFragment.fragmentCallback,
+        InflatedNewsFragment.fragmentCallback {
+
     private static final String FRAGMENT_TAG = "data_handler";
     private FragmentManager manager;
     private boolean inflatedState = false;
     private ModelBase inflatedData;
+    private Bundle position = null;
 
     // Fragments
     private DataHandler dataHandler;
-    private InflatedViewFragment inflatedView;
+    // Inflated Views
+    private InflatedMusicFragment inflatedMusic;
+    private InflatedNewsFragment inflatedNews;
+    private InflatedListFragment inflatedList;
+
+    // Initial Fragments
     private PlayerFragment player;
     private ListViewFragment listFragment;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
+
         super.onCreate(savedInstanceState);
-        getActionBar().setDisplayHomeAsUpEnabled(false);
         manager = getFragmentManager();
 
+        // Retained Fragment that is used to store data and delete old files.
+        dataHandler = (DataHandler) manager.findFragmentByTag(FRAGMENT_TAG);
+
+        if(dataHandler == null) {
+            dataHandler = new DataHandler();
+            manager.beginTransaction().add(dataHandler, FRAGMENT_TAG).commit();
+        }
+
+
         // Checks if portrait or landscape, can be sued to inflate different layouts
-        if(getResources().getConfiguration().orientation == 0) {
+   /*     if(getResources().getConfiguration().orientation == 0) {
             Log.d("Oreintation", "Portrait");
         }else if (getResources().getConfiguration().orientation == 90) {
             Log.d("Oreintation", "LandScape");
-        }
+        }*/
+
         setContentView(R.layout.main_activity);
         Log.i("MainActivity: ", "Layout set");
-        initFragments();
+
+        //initFragments();
 
         // Checks if saved instanceState exists and assumes that if yes it should check if the inflated view was open.
         if(savedInstanceState == null) {
+            initFragments(0);
             Log.e("SavedBundleState", "Null");
         }else {
-           inflatedState = savedInstanceState.getBoolean("infaltedState");
-            // If it was in an inflated state, re-inflate with old data
-            if(inflatedState) {
-                inflatedData = (ModelBase) savedInstanceState.getSerializable("infaltedData");
-                inflateView(inflatedData);
-            }
+            initFragments(1);
+            position = dataHandler.getData();
            Log.e("SavedBundleState", savedInstanceState.toString());
 
-            position = savedInstanceState.getBundle("listPosition");
-            listFragment.setStateChange(true);
-            listFragment.setPosition(position);
+            //listFragment.setStateChange(true);
+            //listFragment.setPosition(position);
+
            //listFragment = (ListViewFragment) manager.getFragment(savedInstanceState, "mContent");
         }
     }
@@ -89,15 +109,13 @@ public class MainActivity extends Activity implements ListViewFragment.listCallb
      * @param outState
      */
     public void onSaveInstanceState(Bundle outState) {
-        outState.putBoolean("infaltedState", inflatedState);
-        outState.putSerializable("infaltedData", inflatedData);
-        outState.putBundle("listPosition", position);
-        //manager.putFragment(outState, "listOutstate", listFragment);
+        dataHandler.setData(position);
         super.onSaveInstanceState(outState);
     }
 
     @Override
     protected void onDestroy() {
+        //manager.popBackStackImmediate(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
         super.onDestroy();
     }
 
@@ -118,7 +136,7 @@ public class MainActivity extends Activity implements ListViewFragment.listCallb
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
-                getFragmentManager().popBackStack();
+                back();
                 getActionBar().setDisplayHomeAsUpEnabled(false);
                 inflatedState = false;
                 getActionBar().setTitle("Visual Radio");
@@ -132,8 +150,9 @@ public class MainActivity extends Activity implements ListViewFragment.listCallb
      * Also sets the inflated state boolean back to false
      */
     public void onBackPressed() {
-        if(inflatedState = true) {
-            getFragmentManager().popBackStack();
+        if(inflatedState) {
+            Log.i("Button Press: ", "Back");
+            back();
             getActionBar().setDisplayHomeAsUpEnabled(false);
             inflatedState = false;
             getActionBar().setTitle("Visual Radio");
@@ -141,39 +160,26 @@ public class MainActivity extends Activity implements ListViewFragment.listCallb
     }
     // END ANDROID SPECIFIC METHODS
 
-
     /**
      * Adds Fragments to views or checks if Fragments already exist and re uses them
      */
-    private void initFragments() {
+    private void initFragments(int runType) {
+        switch (runType) {
+            case 0:
+                // Fragment that drives the list View and its contents
+                listFragment = (ListViewFragment) manager.findFragmentByTag("main_index_list");
 
-        // Retained Fragment that is used to store data and delete old files.
-        dataHandler = (DataHandler) manager.findFragmentByTag(FRAGMENT_TAG);
+                if(findViewById(R.id.list_fragment) != null) {
+                    if(listFragment == null) {
+                        listFragment = new ListViewFragment();
+                        manager.beginTransaction().replace(R.id.list_fragment, listFragment, "main_index_list").commit();
+                    }
 
-        if(dataHandler == null) {
-            dataHandler = new DataHandler();
-            manager.beginTransaction().add(dataHandler, FRAGMENT_TAG).commit();
+                }
+                break;
+            case 1:
+                break;
         }
-
-        // Fragment that drives the list View and its contents
-        if(findViewById(R.id.list_fragment) != null) {
-            if(listFragment == null) {
-                listFragment = new ListViewFragment();
-                manager.beginTransaction().replace(R.id.list_fragment, listFragment, "fragment_list").commit();
-            }
-
-        }
-
-        // Fragment that handles the inflated/detailed view
-        inflatedView = (InflatedViewFragment) manager.findFragmentByTag("fragment_inflated");
-
-        //TODO no landscape layouts created
-      /*  if((findViewById(R.id.landscape_activity) != null)) {
-            if(inflatedView == null) {
-                inflatedView = new InflatedViewFragment();
-                manager.beginTransaction().replace(R.id.fragment_inflated, inflatedView, "fragment_inflated").commit();
-            }
-        }*/
 
         // Fragment that contains the media player
         player = (PlayerFragment) manager.findFragmentById(R.id.player_fragment);
@@ -184,6 +190,7 @@ public class MainActivity extends Activity implements ListViewFragment.listCallb
                 manager.beginTransaction().replace(R.id.player_fragment, player, "fragment_player").commit();
             }
         }
+
     }
 
     /**
@@ -216,28 +223,90 @@ public class MainActivity extends Activity implements ListViewFragment.listCallb
      * the Fragment is given its data to use
      * @param mb a Single ModelBase object's data for usage in inflated view
      */
-    @Override
-    public void inflateView(ModelBase mb) {
-        //if((findViewById(R.id.landscape_activity) == null)) {
-        if (inflatedView == null) {
-            inflatedView = new InflatedViewFragment();
-            manager.beginTransaction().replace(R.id.list_fragment, inflatedView, "fragment_inflated").addToBackStack(null).commit();
-        }else {
-            manager.beginTransaction().replace(R.id.list_fragment, inflatedView, "fragment_inflated").addToBackStack(null).commit();
-        }
-       // }
+    // NOTE Backstack removed TODO
+    public void inflateView(ModelBase mb, String id) {
+
         inflatedState = true;
         inflatedData = mb;
-        inflatedView.setDetail(mb);
+
+        switch (id) {
+            case Constants.INFLATED_TRAFFIC:
+                if (inflatedList == null) {
+                    inflatedList = new InflatedListFragment();
+                    //manager.beginTransaction().replace(R.id.list_fragment, inflatedList, "fragment_list_inflated").addToBackStack(null).commit();
+                    manager.beginTransaction().replace(R.id.list_fragment, inflatedList, "fragment_traffic").commit();
+                }else {
+                    manager.beginTransaction().replace(R.id.list_fragment, inflatedList, "fragment_traffic").commit();
+                }
+                break;
+
+            case Constants.INFLATED_MUSIC:
+                if (inflatedMusic == null) {
+                    inflatedMusic = new InflatedMusicFragment();
+                    //manager.beginTransaction().replace(R.id.list_fragment, inflatedView, "fragment_inflated_view").addToBackStack(null).commit();
+                    manager.beginTransaction().replace(R.id.list_fragment, inflatedMusic, "fragment_music").commit();
+                }else {
+                    manager.beginTransaction().replace(R.id.list_fragment, inflatedMusic, "fragment_music").commit();
+                }
+                break;
+
+            case Constants.INFLATED_NEWS:
+                if (inflatedNews == null) {
+                    inflatedNews = new InflatedNewsFragment();
+                    //manager.beginTransaction().replace(R.id.list_fragment, inflatedView, "fragment_inflated_view").addToBackStack(null).commit();
+                    manager.beginTransaction().replace(R.id.list_fragment, inflatedNews, "fragment_news").commit();
+                }else {
+                    manager.beginTransaction().replace(R.id.list_fragment, inflatedNews, "fragment_news").commit();
+                }
+                break;
+        }
     }
 
-    private Bundle position = new Bundle();
-    public void setPosition(Bundle bundle) {
-        position = bundle;
+
+    /**
+     * Sets the position of the lsitView each time the ListFragment's onPause methods is called
+     * @param position
+     */
+    public void setPosition(Bundle position) {
+        this.position = position;
     }
 
-    private void listPosition() {
+    /**
+     * Set the detail for each respective Inflated View, called by each fragment to ensure no null pointer exceptions happen
+     * due to view not being inflated yet
+     * @param id
+     */
+    @Override
+    public void initView(String id) {
+        switch(id) {
+            case "InflatedList":
+                inflatedList.setDetail(inflatedData);
+                break;
+            case "InflatedMusic":
+                inflatedMusic.setDetail(inflatedData);
+                break;
+            case "InflatedNews":
+                inflatedNews.setDetail(inflatedData);
+                break;
+        }
+    }
 
+    /**
+     * Functionality for navigating back to the index List
+     * Method called by both the up navigation button and back button
+     * Currently never navigated more than one view away from list so always inflating the same fragment is fine
+     */
+    @Override
+    public void back() {
+        listFragment = (ListViewFragment) manager.findFragmentByTag("main_index_list");
+
+        if(findViewById(R.id.list_fragment) != null) {
+            if(listFragment == null) {
+                listFragment = new ListViewFragment();
+                manager.beginTransaction().replace(R.id.list_fragment, listFragment, "main_index_list").commit();
+            }
+            listFragment.refocused(position, true);
+        }
     }
 }
 

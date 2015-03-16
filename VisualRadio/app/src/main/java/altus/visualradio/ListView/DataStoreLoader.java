@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Locale;
 
+import altus.visualradio.Utils.Constants;
 import altus.visualradio.Utils.JSONFilesIO;
 
 /**
@@ -70,7 +71,7 @@ public class DataStoreLoader extends AsyncTaskLoader<List<ModelBase>> {
         // Initiate Socket connection
         connectThread.start();
 
-        Log.i("External File directory", externalDir.toString());
+        Log.i("External File directory", externalDir);
     }
 
     /**
@@ -297,7 +298,7 @@ public class DataStoreLoader extends AsyncTaskLoader<List<ModelBase>> {
             if(!(arr.getJSONObject(0).getJSONObject("card").getString("content_type").equals("music") ||
                     arr.getJSONObject(0).getJSONObject("card").getString("content_type").equals("post") ||
                     arr.getJSONObject(0).getJSONObject("card").getString("content_type").equals("weather") ||
-                    arr.getJSONObject(0).getJSONObject("card").getString("content_type").equals("weather"))){
+                    arr.getJSONObject(0).getJSONObject("card").getString("content_type").equals("traffic"))){
                 return;
             }
         } catch (JSONException e) {
@@ -364,7 +365,7 @@ public class DataStoreLoader extends AsyncTaskLoader<List<ModelBase>> {
 
                 mbObj.imageDir = (getExternalDir()+"/images");
                 // Ensures content list does not exceed maximum amount
-                if((contents.size()+1) > 20) {
+                if((contents.size()+1) > Constants.LIST_LIMIT) {
                     contents.remove(contents.size()-1);
                 }
                 // Add contents to the front of ArrayList

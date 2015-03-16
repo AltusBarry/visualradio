@@ -5,7 +5,6 @@
     android:layout_height="match_parent"
     android:paddingTop="@dimen/activity_vertical_margin"
     android:background="#eeeeee">
-    tools:context=".MainListingActivity">
 
     <FrameLayout
         android:layout_width="match_parent"
@@ -14,18 +13,7 @@
         android:background="#eeeeee"
         android:id="@+id/list_fragment"
         android:layout_above="@+id/player_fragment">
-
         </FrameLayout>
- <!--   <fragment
-        android:name="altus.visualradio.ListView.ListViewFragment"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_alignParentTop="true"
-        android:background="#eeeeee"
-        android:id="@+id/fragment_list"
-        tools:layout="@layout/fragment_list"
-        android:layout_above="@+id/fragment_player">
-    </fragment>-->
 
     <fragment
         android:id="@+id/player_fragment"

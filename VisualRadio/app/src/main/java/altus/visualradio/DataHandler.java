@@ -2,17 +2,11 @@ package altus.visualradio;
 
 import android.app.Activity;
 import android.app.Fragment;
-import android.media.AudioManager;
-import android.media.MediaPlayer;
-import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 
 import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 import altus.visualradio.ListView.ModelBase;
 
@@ -21,22 +15,39 @@ import altus.visualradio.ListView.ModelBase;
  * Headless Fragment to delete old files
  */
 public class DataHandler extends Fragment {
-    private List<ModelBase> contents = new ArrayList<>();
+    public handlerCallbacks callback;
+    private Bundle dataBundle;
 
     public void onAttach(Activity activity) {
         super.onAttach(activity);
+        try {
+            callback = (handlerCallbacks) activity;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(activity.toString() + " must implement OnArticleSelectedListener");
+        }
+    }
+
+    public interface handlerCallbacks {
+
     }
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
-
         FileSystemPoll fl = new FileSystemPoll();
         fl.start();
     }
 
     public void onDetach() {
         super.onDetach();
+    }
+
+    public void setData(Bundle bundle) {
+        dataBundle = bundle;
+    }
+
+    public Bundle getData(){
+        return dataBundle;
     }
 
     /**
@@ -51,7 +62,7 @@ public class DataHandler extends Fragment {
                 current.getTime();
                 iterate(directory, current.getTime());
                 try {
-                    Thread.currentThread().sleep(36000000);
+                    Thread.sleep(36000000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }

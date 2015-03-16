@@ -2,18 +2,18 @@
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="75dp"
+    android:layout_height="wrap_content"
     android:layout_marginBottom="5dp"
     android:background="#ffffff"
     >
 
     <ImageView
         android:layout_width="30dp"
-        android:layout_height="75dp"
+        android:layout_height="30dp"
         android:layout_alignParentLeft="true"
-        android:layout_centerVertical="true"
 
         android:layout_marginLeft="16dp"
+        android:layout_marginTop="16dp"
 
         android:id="@+id/traffic_pic"/>
 
@@ -28,26 +28,8 @@
         android:textColor="#ff000000"
 
         android:id="@+id/traffic_type"
-        android:layout_toRightOf="@+id/traffic_pic"
-        android:layout_alignParentTop="true"/>
+        android:layout_below="@+id/traffic_pic"/>
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-
-        android:maxLines="1"
-        android:ellipsize="end"
-        android:layout_marginLeft="10dp"
-
-        android:text="Default Traffic Situation"
-        android:textSize="15sp"
-        android:textColor="#8d8d8d"
-
-        android:id="@+id/description"
-        android:layout_below= "@+id/traffic_type"
-        android:layout_toRightOf="@+id/traffic_pic"
-
-        android:layout_marginRight="10dp"/>
 
     <TextView
         android:layout_width="wrap_content"
@@ -60,15 +42,29 @@
         android:textColor="#8d8d8d"
 
         android:id="@+id/time_ago"
-        android:layout_toRightOf="@+id/traffic_type"
+        android:layout_below="@+id/traffic_type"
         android:gravity="center" />
+
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+
+        android:layout_marginLeft="10dp"
+
+        android:text="Default Traffic Situation"
+        android:textSize="15sp"
+        android:textColor="#8d8d8d"
+
+        android:id="@+id/description"
+        android:layout_below= "@+id/time_ago"
+
+        android:layout_marginRight="10dp"/>
 
     <View
         android:layout_width="fill_parent"
         android:layout_height="1dp"
         android:background="@android:color/darker_gray"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
         android:layout_alignParentBottom="true"/>
 
 </RelativeLayout>

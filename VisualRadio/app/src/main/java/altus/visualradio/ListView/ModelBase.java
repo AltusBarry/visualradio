@@ -5,7 +5,12 @@ import android.text.format.DateFormat;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.json.JSONTokener;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.ObjectStreamException;
 import java.io.Serializable;
 import java.security.Timestamp;
 import java.util.Calendar;
@@ -45,6 +50,8 @@ public class ModelBase implements Serializable {
         String date = DateFormat.format("hh:mm aa", cal).toString();
         return date;
     }
+
+
 }
 
 
@@ -80,12 +87,25 @@ class Weather extends ModelBase {
 }
 
 class Traffic extends ModelBase {
+    public JSONArray incidents;
 
-    private JSONArray traffic;
     public Traffic(JSONObject jsonObject) throws JSONException {
         super(jsonObject);
 
-        traffic = jsonObject.getJSONObject("card").getJSONArray("incidents");
+        incidents = jsonObject.getJSONObject("card").getJSONArray("incidents");
+    }
+
+    private void writeObject(ObjectOutputStream stream) throws IOException {
+        stream.writeObject(incidents.toString());
+    }
+
+    private void readObject(ObjectInputStream stream) throws IOException, ClassNotFoundException, JSONException {
+        JSONTokener tokener = new JSONTokener((String) stream.readObject());
+        incidents = new JSONArray(tokener);
+    }
+
+    private void readObjectNoData() throws ObjectStreamException{
+
     }
 }
 

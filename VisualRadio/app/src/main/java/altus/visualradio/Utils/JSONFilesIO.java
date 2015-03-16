@@ -87,9 +87,9 @@ public class JSONFilesIO {
 
         // Limits ArrayList length and remove overflow values before adding new values
         int totalLength = (holderArray.length() + lArray.length());
-        int minRemovedIndex = 20 - lArray.length();
+        int minRemovedIndex = Constants.LIST_LIMIT - lArray.length();
         Log.d("JSONIOTotal Length :", Integer.toString(totalLength));
-        if(totalLength >= 20) {
+        if(totalLength >= Constants.LIST_LIMIT) {
             for (int i = (totalLength); i >=minRemovedIndex; i--) {
                 holderArray.remove(i);
             }

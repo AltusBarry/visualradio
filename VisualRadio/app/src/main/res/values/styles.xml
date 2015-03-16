@@ -8,7 +8,7 @@
 
     <style name="MyActionBar"
         parent="@android:style/Widget.Holo.ActionBar">
-        <item name="android:background">#7e3296</item>
+        <item name="android:background">#8c31a8</item>
     </style>
 
     <style name="Widget.Button.Toggle" parent="android:Widget">

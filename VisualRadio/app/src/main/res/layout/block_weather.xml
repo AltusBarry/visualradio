@@ -25,7 +25,6 @@
             android:text="@string/title_default_text"
             android:textSize="19sp"
             android:textColor="#ff000000"
-            android:textStyle="bold"
 
             android:id="@+id/city_name"
             android:layout_toRightOf="@+id/weather_pic"
@@ -41,7 +40,6 @@
             android:text="000'C"
             android:textSize="19sp"
             android:textColor="#ff000000"
-            android:textStyle="bold"
 
             android:id="@+id/high_temp"
             android:layout_toLeftOf="@+id/low_temp"

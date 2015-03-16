@@ -18,13 +18,13 @@ import altus.visualradio.R;
  * Created by altus on 2015/01/12.
  * Set the values for the list row layouts
  */
-public class CustomListViewAdapter extends BaseAdapter {//ArrayAdapter<ModelBase> {
+public class IndexListAdapter extends BaseAdapter {//ArrayAdapter<ModelBase> {
     private LayoutInflater inflater;
     private ArrayList<ModelBase> models;
     private ImageLoader imageLoader;
     private MultiPostRow rowPost;
 
-    public CustomListViewAdapter(Context context, ArrayList<ModelBase> contents) {
+    public IndexListAdapter(Context context, ArrayList<ModelBase> contents) {
         this.models = contents;
         inflater = LayoutInflater.from(context);
         imageLoader = new ImageLoader(context);
@@ -46,6 +46,10 @@ public class CustomListViewAdapter extends BaseAdapter {//ArrayAdapter<ModelBase
         if (data != null) {
             models.addAll(data);
         }
+        notifyDataSetChanged();
+    }
+
+    public void forceUpdate() {
         notifyDataSetChanged();
     }
 
@@ -96,14 +100,18 @@ public class CustomListViewAdapter extends BaseAdapter {//ArrayAdapter<ModelBase
                     break;
                 case 2:
                     convertView = inflater.inflate(R.layout.main_index_list_weather, parent, false);
-                    viewHolder.layout = (RelativeLayout) convertView.findViewById(R.id.weather_area);
+                    convertView.setEnabled(false);
+                    convertView.setOnClickListener(null);
+                    viewHolder.layout = (RelativeLayout) convertView.findViewById(R.id.weather);
+                    break;
+                case 3:
+                    convertView = inflater.inflate(R.layout.main_index_list_traffic, parent, false);
+                    viewHolder.layout = (RelativeLayout) convertView.findViewById(R.id.traffic);
                     break;
             }
 
             if((type == 0) || (type == 1)) {
                 viewHolder.titleText = (TextView) convertView.findViewById(R.id.text_title);
-
-
                 // Assign image view into a ViewHolder class, which is then updated when the Async task
                 // has finished downloading the images
                 viewHolder.imageView = (ImageView) convertView.findViewById(R.id.index_picture);
@@ -127,20 +135,23 @@ public class CustomListViewAdapter extends BaseAdapter {//ArrayAdapter<ModelBase
         }
         viewHolder.timeStamp.setText(indexItem.publishOn);
 
-
-
-        // TODO Set different types of content
-        if (type == 0) {
-            music = (Music) getItem(position);
-            viewHolder.artistName.setText(music.artist);
-        } else if (type ==1){
-           viewHolder.imageView.setScaleType(ImageView.ScaleType.FIT_XY);
-           viewHolder.imageView.setAlpha((float) 0.5);
-        } else if( type == 2) {
-            ModelBase mb = (ModelBase) getItem(position);
-            rowPost.inflateRow(mb, viewHolder.layout);
+        // Set different data types
+        switch (type) {
+            case 0:
+                music = (Music) indexItem;
+                viewHolder.artistName.setText(music.artist);
+                break;
+            case 1 :
+                viewHolder.imageView.setScaleType(ImageView.ScaleType.FIT_XY);
+                viewHolder.imageView.setAlpha((float) 0.5);
+                break;
+            case 2:
+                rowPost.inflateRow(indexItem, viewHolder.layout, getItemId(position));
+                break;
+            case 3:
+                rowPost.inflateRow(indexItem, viewHolder.layout, getItemId(position));
+                break;
         }
-
         return convertView;
     }
 
@@ -157,12 +168,13 @@ public class CustomListViewAdapter extends BaseAdapter {//ArrayAdapter<ModelBase
     }
 
     public int getViewTypeCount() {
-        return 3;
+        return 4;
     }
 
     private static int TYPE_MUSIC = 0;
     private static int TYPE_POST = 1;
     private static int TYPE_WEATHER = 2;
+    private static int TYPE_TRAFFIC = 3;
     public int getItemViewType(int position) {
 
         if (models.get(position).type.equals("music")) {
@@ -171,6 +183,8 @@ public class CustomListViewAdapter extends BaseAdapter {//ArrayAdapter<ModelBase
             return TYPE_POST;
         } else if (models.get(position).type.equals("weather")) {
             return TYPE_WEATHER;
+        } else if (models.get(position).type.equals("traffic")) {
+            return TYPE_TRAFFIC;
         }
         return 0;
     }

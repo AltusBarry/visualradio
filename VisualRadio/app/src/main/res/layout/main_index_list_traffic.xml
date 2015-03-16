@@ -5,7 +5,8 @@
     android:layout_height="wrap_content"
     android:orientation="horizontal"
     android:baselineAligned="false"
-    android:background="#ffffff">
+    android:background="#ffffff"
+    android:id="@+id/traffic">
 
     <TextView
         android:id="@+id/title"
@@ -19,20 +20,27 @@
 
     </TextView>
 
-    <RelativeLayout
-        android:id="@+id/traffic_area"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/title">
+    <include android:layout_height="75dp"
+        android:layout_width="wrap_content"
+        android:id="@+id/cell1" layout="@layout/block_traffic"
+        android:layout_below="@+id/title"/>
 
-    </RelativeLayout>
+    <include android:layout_height="75dp"
+        android:layout_width="wrap_content"
+        android:id="@+id/cell2" layout="@layout/block_traffic"
+        android:layout_below="@+id/cell1"/>
+
+    <include android:layout_height="75dp"
+        android:layout_width="wrap_content"
+        android:id="@+id/cell3" layout="@layout/block_traffic"
+        android:layout_below="@+id/cell2"/>
 
     <RelativeLayout
         android:id="@+id/type_bar"
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:orientation="vertical"
-        android:layout_below="@+id/traffic_area">
+        android:layout_below="@+id/cell3">
 
         <ImageView
             android:layout_width="30dp"
